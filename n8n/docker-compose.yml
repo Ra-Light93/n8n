@@ -13,6 +13,6 @@ services:
       - N8N_WORKFLOW_STORAGE=filesystem
     volumes:
       - ./n8nData:/home/node/.n8n
-      - ./Downloads:/data
+      - ./Downloads:/data 
 
 
