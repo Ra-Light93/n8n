@@ -10,6 +10,7 @@ services:
       - N8N_BASIC_AUTH_ACTIVE=false
       - N8N_LICENSE_SERVER_URL=https://license.n8n.io
       - N8N_LICENSE_KEY=e0513c31-2202-4d3b-8fe1-9fdfdc7929f4
+      - N8N_WORKFLOW_STORAGE=filesystem
     volumes:
       - ./n8nData:/home/node/.n8n
       - ./Downloads:/data
