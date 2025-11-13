@@ -2,12 +2,7 @@
 env/
 
 # n8n application data and logs
-# Ignore all content in n8nData
-n8n/n8nData/*
-# But do NOT ignore the workflows subdirectory
-!n8n/n8nData/workflows/
-# Also ignore the SQLite database specifically if it's in the root of n8nData
-n8n/n8nData/database.sqlite
+n8n/n8nData/
 n8n/Downloads/
 
 # macOS specific files
