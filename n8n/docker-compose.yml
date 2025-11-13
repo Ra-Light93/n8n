@@ -1,0 +1,17 @@
+services:
+  n8n:
+    build: .
+    image: n8n-custom
+    container_name: n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - TZ=Europe/Berlin
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_LICENSE_SERVER_URL=https://license.n8n.io
+      - N8N_LICENSE_KEY=e0513c31-2202-4d3b-8fe1-9fdfdc7929f4
+    volumes:
+      - ./n8nData:/home/node/.n8n
+      - ./Downloads:/data
+
+

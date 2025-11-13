@@ -1,0 +1,9 @@
+# Python virtual environment
+env/
+
+# n8n application data and logs
+n8n/n8nData/
+n8n/Downloads/
+
+# macOS specific files
+.DS_Store

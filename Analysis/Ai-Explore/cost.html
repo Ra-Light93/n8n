@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tools Research: Image & Video Creation Costs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f7f6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        h1 {
+            text-align: center;
+            color: #1a2a3a;
+            font-size: 2.5em;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 40px;
+        }
+        h2 {
+            color: #3498db;
+            font-size: 1.8em;
+        }
+        h3 {
+            color: #2ecc71;
+            font-size: 1.4em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+        }
+        .tool-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .tool-card h4 {
+            color: #e74c3c;
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .tool-card p {
+            margin-bottom: 10px;
+        }
+        .tool-card ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+        .tool-card ul li {
+            margin-bottom: 5px;
+        }
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .cost-table th, .cost-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .cost-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #555;
+        }
+        .note {
+            background-color: #ecf0f1;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin-top: 30px;
+            border-radius: 5px;
+        }
+        .note p {
+            margin: 0;
+            color: #555;
+        }
+        .disclaimer {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .user-choice {
+            background-color: #e8f4fd;
+            border: 2px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Tools Research: Image & Video Creation Costs</h1>
+
+        <div class="note">
+            <p><strong>Introduction & Assumptions:</strong> This report provides an overview of leading and average-tier AI tools for image generation, image editing, video generation, and video editing (specifically for creating shorts). It includes their pricing models and an estimated monthly cost based on your specified usage:</p>
+            <ul>
+                <li><strong>Images:</strong> 25 images per day = 750 images per month.</li>
+                <li><strong>Video Generation:</strong> 5 videos per day = 150 videos per month. For pricing, we assume an average generated video length of 1 minute, totaling 150 minutes of generated video per month.</li>
+                <li><strong>Video Shorts Creation:</strong> 5 shorts per day = 150 shorts per month. For tools that process existing video, we assume an average of 10 minutes of source video processed per short, totaling 1500 minutes of source video processed per month. If the tool charges per short, we use 150 shorts/month.</li>
+            </ul>
+            <p>Pricing is subject to change and may vary by region or specific features used. Always check the official websites for the most current information.</p>
+        </div>
+
+        <h2>1. AI Image Generation</h2>
+        <p>These tools create images from text prompts or other inputs.</p>
+
+        <h3>Top-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Midjourney</h4>
+            <p><strong>Description:</strong> Renowned for producing artistic, cinematic, and high-quality images. Access primarily via Discord, with a beta web app.</p>
+            <p><strong>Pricing Model:</strong> Subscription-based, primarily based on "GPU time" (approx. 1 minute GPU per 4-image grid).</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li>A 4-image grid typically uses about 1 minute of GPU time. To generate 750 images, you'd likely generate around 188 grids (750/4). This would require ~188 minutes of GPU time, or ~3.13 GPU hours.</li>
+                <li><strong>Basic Plan ($10/month):</strong> Includes ~3.3 GPU hours (~200 image generations). This plan would likely cover your usage.</li>
+                <li><strong>Estimated Cost: ~$10/month</strong> (Basic Plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>DALL-E 3 (via ChatGPT Plus)</h4>
+            <p><strong>Description:</strong> Excels at accurate prompt following, detailed images, inpainting, and legible text within images. Integrated into ChatGPT.</p>
+            <p><strong>Pricing Model:</strong> Included with ChatGPT Plus subscription or via API.</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li><strong>ChatGPT Plus ($20/month):</strong> Offers full DALL-E 3 capabilities within the chat interface, subject to message caps. This is generally the most straightforward way for individual users.</li>
+                <li><strong>API Usage:</strong> At $0.04 per standard 1024x1024 image. 750 images * $0.04/image = $30.</li>
+                <li><strong>Estimated Cost: ~$20/month</strong> (ChatGPT Plus subscription) or <strong>~$30/month</strong> (API)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Stable Diffusion (DreamStudio / API)</h4>
+            <p><strong>Description:</strong> Open-source and highly customizable, known for detailed and colorful images. Can be self-hosted or used via platforms like DreamStudio.</p>
+            <p><strong>Pricing Model:</strong> Free for local installs. DreamStudio uses a credit system. API is credit-based.</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li><strong>DreamStudio/API:</strong> Pricing can be around $0.005 per image. 750 images * $0.005/image = $3.75.</li>
+                <li><strong>Estimated Cost: ~$3.75/month</strong> (via API/DreamStudio, excluding free credits)</li>
+            </ul>
+        </div>
+
+        <h3>Average-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Adobe Firefly</h4>
+            <p><strong>Description:</strong> Ethical AI, strong integration with Adobe Creative Cloud. Offers features like reference image uploads and style adjustments.</p>
+            <p><strong>Pricing Model:</strong> Free plan with 25 generative credits/month. Premium access with more credits.</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li>A free plan offers 25 credits. 750 images would require a paid plan.</li>
+                <li>Premium access starts around $4.99/month for 100 credits. You would need a higher-tier plan or multiple credit packs.</li>
+                <li>Assuming 1 credit per image, you'd need 750 credits. Adobe's plans vary, but a plan offering 1000+ credits would likely be in the **$20-$30/month** range.</li>
+                <li><strong>Estimated Cost: ~$20-30/month</strong> (depending on credit packs/plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card user-choice">
+            <h4>Leonardo AI</h4>
+            <p><strong>Description:</strong> User-friendly, good for consistent character creation, and offers 3D integration. Has a generous free tier.</p>
+            <p><strong>Pricing Model:</strong> Semi-free, with a free plan offering 150 daily tokens/credits. Premium plans start around $10-$12/month.</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li>Free plan offers 150 daily tokens. 150 tokens * 30 days = 4500 tokens/month. This is usually enough for more than 750 images, as simple generations might use 1-5 tokens.</li>
+                <li><strong>Estimated Cost: ~$0/month</strong> (Free plan likely sufficient)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Canva (Magic Media)</h4>
+            <p><strong>Description:</strong> User-friendly design app with integrated AI image generation, great for beginners and integrating into other projects.</p>
+            <p><strong>Pricing Model:</strong> Free with paid options to upgrade (Canva Pro).</p>
+            <p><strong>Estimated Monthly Cost (750 images):</strong></p>
+            <ul>
+                <li>Canva Pro ($14.99/month) typically includes a significant number of AI credits (often 500+ per month). This should cover 750 images, though specific credit usage per image can vary.</li>
+                <li><strong>Estimated Cost: ~$14.99/month</strong> (Canva Pro)</li>
+            </ul>
+        </div>
+
+        <h2>2. AI Image Editing</h2>
+        <p>Tools that use AI to enhance, modify, or transform existing images.</p>
+
+        <h3>Top-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Adobe Photoshop (with Generative Fill)</h4>
+            <p><strong>Description:</strong> Industry-standard image editor with powerful AI features like Generative Fill for adding/removing content, and AI-powered selections.</p>
+            <p><strong>Pricing Model:</strong> Subscription-based, often part of Adobe Creative Cloud plans.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Photography Plan (Photoshop + Lightroom) starts at $19.99/month, including 25 generative credits. Additional credits may be needed for 750 generative fills.</li>
+                <li>For 750 generative edits, you would likely need a higher volume of generative credits. Adobe's credit packs vary, but this usage could push the cost to **$30-$50/month** depending on how credits are consumed per edit.</li>
+                <li><strong>Estimated Cost: ~$19.99 - $50/month</strong> (Photography Plan + potential extra credits)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Luminar Neo</h4>
+            <p><strong>Description:</strong> Comprehensive AI-powered photo editor with features like sky replacement, portrait enhancement, and structure adjustments.</p>
+            <p><strong>Pricing Model:</strong> Subscription or one-time perpetual license.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Luminar Neo's pricing is typically a flat subscription fee, not per-edit.</li>
+                <li>Subscription starts around $7.46/month (billed annually).</li>
+                <li><strong>Estimated Cost: ~$7.46/month</strong> (Subscription)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Topaz Photo AI / Gigapixel AI</h4>
+            <p><strong>Description:</strong> Specializes in image quality enhancement: upscaling, noise reduction, sharpening, and deblurring using AI.</p>
+            <p><strong>Pricing Model:</strong> One-time purchase for perpetual license, with optional upgrades for new versions.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Topaz Gigapixel AI is $99 one-time. Topaz Photo AI is also a one-time purchase.</li>
+                <li>Once purchased, there are no recurring costs for usage.</li>
+                <li><strong>Estimated Cost: ~$0/month</strong> (after initial purchase of ~$99-150)</li>
+            </ul>
+        </div>
+
+        <h3>Average-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Fotor</h4>
+            <p><strong>Description:</strong> Versatile AI photo editor with a simple interface, offering generative AI features, background removal, and object removal.</p>
+            <p><strong>Pricing Model:</strong> Free with limitations; paid plans with credits.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Pro plan starts at $3.99/month for 100 AI credits.</li>
+                <li>To cover 750 edits, you would need a higher-tier plan or multiple credit packs. A plan offering 750+ credits would likely be in the **$10-$20/month** range.</li>
+                <li><strong>Estimated Cost: ~$10-20/month</strong> (depending on credit packs/plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Pixlr</h4>
+            <p><strong>Description:</strong> Online AI editor with basic and advanced features, including AI cutouts, object removal, and generative fill.</p>
+            <p><strong>Pricing Model:</strong> Free with ads; Plus plan with credits.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Plus Plan is $1.99/month, including 80 monthly AI credits.</li>
+                <li>To cover 750 edits, you would need significantly more credits. This would likely require a higher-tier plan or purchasing additional credit packs, potentially in the **$15-$25/month** range.</li>
+                <li><strong>Estimated Cost: ~$15-25/month</strong> (depending on credit packs/plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Canva</h4>
+            <p><strong>Description:</strong> User-friendly design platform with AI editing features like Magic Edit, Magic Erase, and background removal.</p>
+            <p><strong>Pricing Model:</strong> Free version; Canva Pro subscription.</p>
+            <p><strong>Estimated Monthly Cost (750 edits):</strong></p>
+            <ul>
+                <li>Canva Pro ($14.99/month) typically includes a generous amount of AI credits (often 500+ per month). This should cover 750 edits, though specific credit usage per edit can vary.</li>
+                <li><strong>Estimated Cost: ~$14.99/month</strong> (Canva Pro)</li>
+            </ul>
+        </div>
+
+        <h2>3. AI Video Generation</h2>
+        <p>Tools that create videos from text, images, or other inputs using AI.</p>
+
+        <h3>Top-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Google Veo 3</h4>
+            <p><strong>Description:</strong> Generates high-quality, realistic videos with synced audio, cinematic realism, and advanced editing features. Considered a benchmark in visual quality.</p>
+            <p><strong>Pricing Model:</strong> Credit-based via Google AI Pro/Ultra plans.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>Google AI Pro ($19.99/month) includes 1,000 credits. Google Veo 2 (older model) was priced at $0.50 per second. If Veo 3 is similar, 1 minute = $30. 150 minutes = $4500.</li>
+                <li>This suggests a credit system where 1,000 credits might not cover 150 minutes. The Ultra plan ($249.99/month) offers 12,500 credits.</li>
+                <li>Given the high cost per second for older models, generating 150 minutes (9000 seconds) would be very expensive. If 1 credit = 1 second, 12,500 credits = 12,500 seconds = ~208 minutes.</li>
+                <li><strong>Estimated Cost: ~$249.99/month</strong> (Google AI Ultra, assuming 12,500 credits covers 150 minutes)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>RunwayML</h4>
+            <p><strong>Description:</strong> Comprehensive AI video creation platform with text-to-video, image generation, and motion tracking. Favored by creative professionals.</p>
+            <p><strong>Pricing Model:</strong> Free plan with one-time credits; subscription plans with monthly credits or unlimited generation.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>Standard plan ($12/month) includes 625 monthly credits. Pro plan ($28/month) offers 2250 credits. Unlimited plan ($76/month) provides unlimited relaxed-rate generations.</li>
+                <li>Generating 150 minutes of video would likely require the **Unlimited plan**.</li>
+                <li><strong>Estimated Cost: ~$76/month</strong> (Unlimited Plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>OpenAI Sora (via ChatGPT Plus)</h4>
+            <p><strong>Description:</strong> Generates high-quality videos with realistic physics and consistent subjects. Currently integrated with ChatGPT Plus.</p>
+            <p><strong>Pricing Model:</strong> Included with ChatGPT Plus subscription.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>ChatGPT Plus ($20/month) offers 720p watermarked videos up to 10 seconds each. 150 minutes = 9000 seconds. This would be 900 videos of 10 seconds each.</li>
+                <li>The ChatGPT Plus plan typically includes 1,000 credits, which might cover around 50-100 short videos. Generating 900 videos would likely exceed the limits of a standard ChatGPT Plus subscription.</li>
+                <li>If a future Pro plan allows for this volume, it would be significantly higher than $20. For now, this volume is likely not feasible or very expensive.</li>
+                <li><strong>Estimated Cost: >$20/month</strong> (Likely requires a higher-tier or API plan not fully detailed for this volume)</li>
+            </ul>
+        </div>
+
+        <h3>Average-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Synthesia</h4>
+            <p><strong>Description:</strong> Specializes in creating videos with AI avatars and voices, ideal for training, presentations, and marketing. Focuses on realistic AI presenters.</p>
+            <p><strong>Pricing Model:</strong> Free plan (limited); Creator/Team plans based on video minutes per year.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>Creator plan ($59/month) offers 360 minutes of video per year, which is 30 minutes/month.</li>
+                <li>To generate 150 minutes/month, you would need a much higher-tier plan, likely an Enterprise plan with custom pricing.</li>
+                <li><strong>Estimated Cost: Custom/Enterprise pricing</strong> (Likely >$100/month for this volume)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Pika AI</h4>
+            <p><strong>Description:</strong> Creative idea-to-video platform with an intuitive interface, offering various model options for video generation.</p>
+            <p><strong>Pricing Model:</strong> Free plan with upfront credits; subscription plans with monthly credits.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>Pro plan ($60/month) offers 3,000 credits/month. Fancy plan ($95/month) offers 6,000 credits/month.</li>
+                <li>Assuming 1 credit per second of video, 150 minutes = 9000 seconds = 9000 credits.</li>
+                <li>This would require more than the Fancy plan.</li>
+                <li><strong>Estimated Cost: >$95/month</strong> (Likely requires a higher-tier plan or custom solution)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>InVideo AI</h4>
+            <p><strong>Description:</strong> Ideal for text-to-video and faceless content, generating shorts from prompts using stock media and AI voices. User-friendly.</p>
+            <p><strong>Pricing Model:</strong> Free plan (limited); Plus/Max/Generative plans with credits and video minutes.</p>
+            <p><strong>Estimated Monthly Cost (150 minutes generated video):</strong></p>
+            <ul>
+                <li>Max Plan ($50/month billed annually) offers 200 video minutes. This would cover your 150 minutes.</li>
+                <li><strong>Estimated Cost: ~$50/month</strong> (Max Plan)</li>
+            </ul>
+        </div>
+
+        <h2>4. AI Video Editing (Shorts Creation)</h2>
+        <p>Tools that use AI to edit, repurpose, or create short-form video content.</p>
+
+        <h3>Top-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Opus Clip</h4>
+            <p><strong>Description:</strong> Excels at clipping long videos into viral shorts with captions and virality scores. Ideal for podcasters and streamers.</p>
+            <p><strong>Pricing Model:</strong> Free trial; paid plans based on video hours processed.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts from 1500 minutes source video):</strong></p>
+            <ul>
+                <li>Opus Clip typically charges per hour of source video processed. To process 1500 minutes (25 hours) of source video:</li>
+                <li>Plans vary, but a plan covering 25 hours of processing would likely be in the **$50-$100/month** range.</li>
+                <li><strong>Estimated Cost: ~$50-100/month</strong> (depending on plan tier for hours processed)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Descript</h4>
+            <p><strong>Description:</strong> Edits video by editing the script, offering features like audio refinement, auto multicam, and generating highlights/clips for social media.</p>
+            <p><strong>Pricing Model:</strong> Free plan (limited transcription); Creator/Business plans with media hours and AI credits.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts from 1500 minutes source video):</strong></p>
+            <ul>
+                <li>Creator Plan ($24/user/month) includes 30 media hours/month. 1500 minutes = 25 hours. This plan would cover the media hours.</li>
+                <li><strong>Estimated Cost: ~$24/month</strong> (Creator Plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>RunwayML</h4>
+            <p><strong>Description:</strong> Offers AI-powered tools for masking, background removal, motion tracking, and generative editing, useful for complex short-form video edits.</p>
+            <p><strong>Pricing Model:</strong> Free plan; subscription plans with credits or unlimited generation.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts):</strong></p>
+            <ul>
+                <li>Runway's pricing is more geared towards generation or complex effects rather than simple clipping. If each short requires significant generative work, the Unlimited plan ($76/month) might be needed.</li>
+                <li>If it's primarily for editing existing footage with AI tools, the Standard or Pro plans might suffice, depending on credit usage.</li>
+                <li><strong>Estimated Cost: ~$28 - $76/month</strong> (Pro to Unlimited Plan, depending on AI feature usage per short)</li>
+            </ul>
+        </div>
+
+        <h3>Average-Tier Tools</h3>
+        <div class="tool-card">
+            <h4>Pictory AI</h4>
+            <p><strong>Description:</strong> Excellent for repurposing blogs and long videos into captioned shorts automatically. Efficient for YouTube Shorts creation.</p>
+            <p><strong>Pricing Model:</strong> Subscription plans based on video minutes.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts from 1500 minutes source video):</strong></p>
+            <ul>
+                <li>Professional Plan ($29/month billed annually) offers 600 video minutes.</li>
+                <li>To process 1500 minutes of source video, you would need a higher-tier plan. The Team Plan ($99/month) offers 1800 video minutes, which would cover your usage.</li>
+                <li><strong>Estimated Cost: ~$99/month</strong> (Team Plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>InVideo AI</h4>
+            <p><strong>Description:</strong> Generates shorts from prompts using stock media and AI voices. Can also be used to create short-form content from text.</p>
+            <p><strong>Pricing Model:</strong> Free plan; Plus/Max/Generative plans with credits and video minutes.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts):</strong></p>
+            <ul>
+                <li>Max Plan ($50/month billed annually) offers 200 video minutes. If each short is 1 minute, this covers 200 shorts.</li>
+                <li><strong>Estimated Cost: ~$50/month</strong> (Max Plan)</li>
+            </ul>
+        </div>
+        <div class="tool-card">
+            <h4>Short AI</h4>
+            <p><strong>Description:</strong> AI YouTube Shorts maker focused on creating high-performing, user-generated content (UGC) style videos with a 100% AI-driven production pipeline.</p>
+            <p><strong>Pricing Model:</strong> Subscription plans based on credits/number of faceless videos or auto-caption minutes.</p>
+            <p><strong>Estimated Monthly Cost (150 shorts):</strong></p>
+            <ul>
+                <li>Pro Plan ($30/month billed yearly) offers 3600 credits/month for up to 90 faceless videos.</li>
+                <li>To create 150 shorts, you would need the Enterprise Plan ($60/month billed yearly), which provides 7200 credits/month for up to 180 faceless videos.</li>
+                <li><strong>Estimated Cost: ~$60/month</strong> (Enterprise Plan)</li>
+            </ul>
+        </div>
+
+        <div class="disclaimer">
+            <p><strong>Disclaimer:</strong> All pricing is approximate and based on information available as of late 2024/early 2025. Prices are subject to change by the service providers, and actual costs may vary based on specific features, usage patterns, region, and any promotional offers. Always consult the official websites of the respective tools for the most accurate and up-to-date pricing information.</p>
+        </div>
+    </div>
+</body>
+</html>

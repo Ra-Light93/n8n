@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technisches Research & System-Design</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f9fafb;
+            color: #1f2937;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 2rem 3rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            color: #111827;
+            margin-top: 1.5em;
+            margin-bottom: 0.8em;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 0.4rem;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: #374151;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
+
+        td ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        li strong {
+            color: #111827;
+        }
+
+        .complexity {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .complexity-einfach { background-color: #d1fae5; color: #065f46; }
+        .complexity-mittel { background-color: #fef3c7; color: #92400e; }
+        .complexity-komplex { background-color: #fee2e2; color: #991b1b; }
+        
+        .legal-hinweis {
+            background-color: #eef2ff;
+            border-left: 4px solid #4f46e5;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .server-cost {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            padding: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Highlight style */
+        .highlight {
+            background-color: #ef4444; /* Red background */
+            color: #ffffff; /* White text */
+            padding: 0.2em 0.4em;
+            border-radius: 0.25em;
+            font-weight: 600;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Technisches Research & System-Design</h1>
+        <p>Eine strukturierte Übersicht über technische Lösungswege für einen automatisierten Content-Workflow.</p>
+
+        <!-- Use Case 1 -->
+        <h2>Use Case 1: Eigene Texte/Bilder/Videos</h2>
+        <p>Auf bestehende Bilder oder Video-Frames sollen automatisch Texte, Logos oder Overlays platziert werden.</p>
+        <table>
+            <tr>
+                <th>Kategorie</th>
+                <th>Lösungen</th>
+            </tr>
+            <tr>
+                <td><strong>Online-Services (APIs)</strong></td>
+                <td>
+                    <ul>
+                        <li><strong>Bannerbear:</strong> Spezialisiert auf die Automatisierung von Bildern und Videos via API. <br><em>Kosten: Kostenlose Testphase, dann ab ca. $49/Monat.</em></li>
+                        <li><strong>Cloudinary:</strong> Mächtige Media-Plattform mit umfangreichen APIs für Transformationen, Overlays und Effekte. <br><em>Kosten: Freemium-Modell mit großzügigem kostenlosem Kontingent, dann ab ca. $99/Monat.</em></li>
+                        <li><strong>Abyssale:</strong> Service zur automatisierten Erstellung von Bannern und Videos aus Vorlagen. <br><em>Kosten: Kostenlose Testphase, dann Pläne ab ca. 2/Sitz/Monat (jährliche Abrechnung).</em></li>
+                        <li><strong>Shotstack:</strong> Video-Editing-API, die auch Overlays auf Video-Frames unterstützt. <br><em>Kosten: Kostenlose Testphase (mit Wasserzeichen), dann Pay-as-you-go oder Pläne ab ca. $49/Monat.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Lokale Lösungen (Open Source)</strong></td>
+                <td>
+                    <ul>
+                        <li><span class="highlight">FFmpeg</span> (CLI): Das ultimative Tool für jegliche Video- und Bildmanipulation über die Kommandozeile. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>ImageMagick (CLI):</strong> Ähnlich wie FFmpeg, aber auf Bilder spezialisiert. Sehr robust. <em>Kosten: Kostenlos.</em></li>
+                        <li><span class="highlight">Pillow</span> (Python Library): Eine der populärsten Bibliotheken für Bildbearbeitung in Python. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>Sharp (Node.js Library):</strong> Hochperformante Bibliothek für Bildmanipulation in Node.js. <em>Kosten: Kostenlos.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Komplexität</strong></td>
+                <td>
+                    <span class="complexity complexity-einfach">Einfach</span> (Online-Services)<br>
+                    <span class="complexity complexity-mittel">Mittel</span> (Lokale Lösungen)
+                </td>
+            </tr>
+        </table>
+        <div class="legal-hinweis">
+            <strong>Rechtliche Hinweise:</strong> Achten Sie darauf, dass Sie die Rechte an allen verwendeten Assets (Bilder, Videos, Logos) besitzen. Auch Schriftarten unterliegen Lizenzen, die eine kommerzielle oder serverseitige Nutzung eventuell einschränken.
+        </div>
+
+        <!-- Use Case 2 -->
+        <h2>Use Case 2: Analyse von Bildern/Videos</h2>
+        <p>Inhalte analysieren und auf Basis dessen passende Texte generieren und platzieren.</p>
+        <table>
+            <tr>
+                <th>Kategorie</th>
+                <th>Lösungen</th>
+            </tr>
+            <tr>
+                <td><strong>Online-Services (APIs)</strong></td>
+                <td>
+                    <ul>
+                        <li><strong>Google Cloud Vision / Amazon Rekognition / <span class="highlight">Azure Vision</span>:</strong> Erkennen Objekte, Gesichter, Stimmungen und Text in Bildern/Videos. <br><em>Kosten: Pay-as-you-go. Alle bieten eine kostenlose Stufe (z.B. 1.000 Anfragen/Monat), danach sehr günstige Preise pro 1.000 Anfragen (oft < $2).</em></li>
+                        <li><strong>Clarifai:</strong> Starke API für die Erkennung von Konzepten und Objekten. <br><em>Kosten: Freemium-Modell mit 1.000 Anfragen/Monat kostenlos, dann Pläne ab $30/Monat oder Pay-as-you-go.</em></li>
+                        <li><strong>OpenAI API (GPT-4o):</strong> Kann Bilder direkt "sehen" und analysieren sowie darauf basierend kreative Texte erstellen. <br><em>Kosten: Pay-as-you-go. GPT-4o kostet ca. $5 pro 1 Mio. Input-Token. Sehr kosteneffizient.</em></li>
+                        <li><strong>Google Gemini API:</strong> Ähnlich wie GPT-4o, mit starken multimodalen Fähigkeiten zur Analyse und Textgenerierung. <br><em>Kosten: Pay-as-you-go, preislich konkurrenzfähig zu OpenAI. Bietet ebenfalls eine kostenlose Stufe.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Lokale Lösungen (Open Source)</strong></td>
+                <td>
+                    <ul>
+                        <li><strong>YOLO / ResNet (Modelle):</strong> Populäre Modelle für Objekterkennung und Bildklassifizierung. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>OpenCV (Library):</strong> Die Standard-Bibliothek für Computer-Vision-Aufgaben. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>Hugging Face Transformers (Framework):</strong> Bietet Zugriff auf tausende vortrainierte Modelle (Vision und Text). <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>Ollama (Tool):</strong> Vereinfacht das lokale Ausführen großer Sprachmodelle (z.B. Llama 3, Mistral) für die Textgenerierung. <em>Kosten: Kostenlos.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Komplexität</strong></td>
+                <td>
+                    <span class="complexity complexity-mittel">Mittel</span> (Online-Services)<br>
+                    <span class="complexity complexity-komplex">Komplex</span> (Lokale Lösungen, erfordert oft GPU)
+                </td>
+            </tr>
+        </table>
+        <div class="legal-hinweis">
+            <strong>Rechtliche Hinweise:</strong> Bei der Analyse von Bildern mit Personen müssen Datenschutzrichtlinien (DSGVO) beachtet werden. Generierte Texte sollten auf Angemessenheit geprüft werden, um keine falschen oder schädlichen Inhalte zu verbreiten.
+        </div>
+
+        <!-- Use Case 3 -->
+        <h2>Use Case 3: Automatisches Video-Editing</h2>
+        <p>Videos automatisch schneiden und mit neuen Elementen (Intros, Outros, Untertitel) versehen.</p>
+        <table>
+            <tr>
+                <th>Kategorie</th>
+                <th>Lösungen</th>
+            </tr>
+            <tr>
+                <td><strong>Online-Services (APIs)</strong></td>
+                <td>
+                    <ul>
+                        <li><strong>Shotstack:</strong> API speziell für serverseitiges Video-Editing und Rendering. <br><em>Kosten: Kostenlose Testphase (mit Wasserzeichen), dann Pay-as-you-go oder Pläne ab ca. $49/Monat.</em></li>
+                        <li><strong>Remotion (Cloud Rendering):</strong> Ermöglicht das Rendern von in React erstellten Videos in der Cloud. <br><em>Kosten: Kostenlos für Einzelpersonen & kleine Teams (bis 3 MA). Company-Lizenz ab 00/Monat.</em></li>
+                        <li><strong>Plainly:</strong> Template-basierte Video-Automatisierung, gut für personalisierte Videos. <br><em>Kosten: 14-tägige Testphase, dann Pläne ab ca. $69/Monat.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Lokale Lösungen (Open Source)</strong></td>
+                <td>
+                    <ul>
+                        <li><span class="highlight">FFmpeg</span> (CLI): Das mächtigste Werkzeug für Skript-basiertes Schneiden, Zusammenfügen und Bearbeiten von Videos. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>MoviePy (Python Library):</strong> Ein Python-Wrapper für FFmpeg, der die Videobearbeitung in Skripten vereinfacht. <em>Kosten: Kostenlos.</em></li>
+                        <li><strong>Remotion (Local Rendering):</strong> Videos mit React-Komponenten definieren und lokal rendern. <br><em>Kosten: Kostenlos für Einzelpersonen & kleine Teams (bis 3 MA). Company-Lizenz ab 00/Monat.</em></li>
+                        <li><strong>OpenCV (Python/JS):</strong> Kann zur Analyse von Videos verwendet werden, um z.B. Szenenwechsel für Schnitte zu erkennen. <em>Kosten: Kostenlos.</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Komplexität</strong></td>
+                <td>
+                    <span class="complexity complexity-mittel">Mittel</span> (Online-Services)<br>
+                    <span class="complexity complexity-komplex">Komplex</span> (Lokale Lösungen)
+                </td>
+            </tr>
+        </table>
+        <div class="legal-hinweis">
+            <strong>Rechtliche Hinweise:</strong> Das Entfernen von Wasserzeichen oder Copyright-Hinweisen ist in der Regel illegal. Stellen Sie sicher, dass Sie die Berechtigung haben, die Quellvideos zu bearbeiten und zu verbreiten.
+        </div>
+
+        <!-- Use Case 4 -->
+        <h2>Use Case 4: Automatisierte Social-Media-Posts</h2>
+        <p>Aus den generierten Inhalten fertige Social-Media-Posts erzeugen.</p>
+        <table>
+            <tr>
+                <th>Kategorie</th>
+                <th>Lösungen</th>
+            </tr>
+            <tr>
+                <td><strong>Online-Services (APIs)</strong></td>
+                <td>
+                    <ul>
+                        <li><strong><span class="highlight">Offizielle Plattform-APIs</span>:</strong> (Meta, X/Twitter, LinkedIn, etc.): Bieten die direkteste, aber auch aufwändigste Integration. <br><em>Kosten: API-Nutzung meist kostenlos, kann aber je nach Plattform/Nutzung eingeschränkt sein.</em></li>
+                        <li><strong>Ayrshare:</strong> Eine vereinheitlichte API, um auf vielen sozialen Netzwerken gleichzeitig zu posten. <br><em>Kosten: Pläne ab ca. 49/Monat für 1.000 Posts.</em></li>
+                        <li><strong>Buffer / Hootsuite API:</strong> APIs von etablierten Social-Media-Management-Tools. <br><em>Kosten: API-Zugang meist in teureren Plänen enthalten (Buffer ab ca. 0/Kanal, Hootsuite ab $249/Monat).</em></li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Lokale Lösungen (Open Source)</strong></td>
+                <td>
+                    <ul>
+                        <li>Nicht direkt anwendbar. Die "lokale" Komponente ist hier das Skript (z.B. in n8n), das die externen Online-APIs aufruft.</li>
+                    </ul>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Komplexität</strong></td>
+                <td>
+                    <span class="complexity complexity-mittel">Mittel</span> (Die Hauptkomplexität liegt im OAuth-Authentifizierungsprozess und den unterschiedlichen Regeln der Plattformen).
+                </td>
+            </tr>
+        </table>
+        <div class="legal-hinweis">
+            <strong>Rechtliche Hinweise:</strong> Halten Sie sich strikt an die Nutzungsbedingungen und API-Richtlinien jeder Plattform. Automatisierung darf nicht zu Spam führen. Beachten Sie Rate Limits und Posting-Frequenzen.
+        </div>
+        
+        <!-- Server Costs -->
+        <div class="server-cost">
+            <h2>Was kostet ein externer Server?</h2>
+            <p>Die Kosten für einen Server zur Ausführung der "Lokalen Lösungen" hängen stark von den Anforderungen ab, insbesondere ob eine GPU (Grafikprozessor) benötigt wird.</p>
+            <h3>Szenario 1: Ohne GPU</h3>
+            <p>Für Bildbearbeitung und einfachere Videobearbeitung (z.B. Overlays, Schneiden).</p>
+            <ul>
+                <li><strong>Anbieter:</strong> Hetzner, DigitalOcean, Vultr</li>
+                <li><strong>Spezifikationen:</strong> z.B. 4 vCPUs, 16 GB RAM</li>
+                <li><strong>Geschätzte Kosten:</strong> <strong>ca. 40 € – 100 € pro Monat</strong></li>
+            </ul>
+            <h3>Szenario 2: Mit GPU</h3>
+            <p>Notwendig für das effiziente Ausführen von KI-Modellen (Use Case 2) und anspruchsvolles Video-Rendering.</p>
+            <ul>
+                <li><strong>Anbieter:</strong> AWS, Google Cloud, Azure, vast.ai</li>
+                <li><strong>Spezifikationen:</strong> VM mit einer Einsteiger-GPU (z.B. NVIDIA T4)</li>
+                <li><strong>Geschätzte Kosten:</strong> <strong>ca. 200 € – 400 € pro Monat (oder mehr)</strong></li>
+            </ul>
+            <p><strong>Empfehlung:</strong> Starten Sie mit einem Server ohne GPU. Wenn Sie KI-Modelle lokal betreiben wollen, können Sie auf einen GPU-Server umsteigen oder die rechenintensiven Aufgaben an spezialisierte Online-APIs (wie OpenAI oder Google Vision) auslagern, was oft kosteneffizienter ist.</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

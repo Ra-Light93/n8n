@@ -1,0 +1,48 @@
+Hello Gemini,
+
+Please use the following summary to get up to speed on my project. This is the context for our conversation.
+
+**My Project: The Automated Content Factory**
+
+My goal is to build an automated system for creating and posting social media content. I have completed the initial research and planning phase.
+
+**1. My Chosen Niche:**
+- I have decided to focus on creating **Islamic Religious Content**.
+- The content will be inspirational and educational, such as daily reminders featuring Quranic verses or Hadith.
+- The target audience is the global Muslim community, which is very large and highly engaged.
+- I am aware that this niche requires absolute accuracy and a respectful tone.
+
+**2. My Technical Plan & Workflows:**
+I have designed two main automated workflows:
+
+- **Workflow A: Timed Text Overlays:**
+  - For creating subtitled videos.
+  - The process: Use FFmpeg to extract audio -> Use Whisper AI API for transcription with word-level timestamps -> Use a script to generate FFmpeg commands that burn the text onto the video at the correct times.
+
+- **Workflow B: AI-Generated Commentary:**
+  - For creating transformative commentary videos.
+  - The process: Use FFmpeg to extract keyframes from a video -> Use a multimodal AI (like GPT-4o) to analyze the images and generate a description -> Use an LLM to write a commentary script based on the description -> Use a TTS AI (like OpenAI TTS) to generate audio -> Use FFmpeg to combine the original video with the new commentary audio.
+  - This is my preferred method for creating "fair use" compliant content.
+
+**3. My Chosen Tools:**
+- **Image Generation:** Leonardo AI.
+- **Core Media Manipulation:** FFmpeg and the Pillow library (for Python).
+- **AI Transcription:** Whisper AI API.
+- **AI Analysis & Scripting:** GPT-4o or Gemini API.
+- **Text-to-Speech:** OpenAI TTS API.
+
+**4. Copyright Context:**
+- I understand the basics of copyright and the "fair use" doctrine.
+- I know that creating "transformative" work is key to a strong fair use argument, which is why I am focused on the AI Commentary workflow (Workflow B).
+- I am aware of the high risks of using copyrighted material like anime clips and the lower (but still present) risks of using viral news-style videos.
+
+**5. Project Files in the Ai-Explore Folder:**
+This folder contains all the research and summary documents from our planning phase:
+- `niche_recommendation.html`: Contains a ranked analysis of various content niches, with my final chosen niche ("Islamic Religious Content") included.
+- `social_media_monetization_report.html`: A detailed report on how to monetize social media content across different niches.
+- `research_summary.html`: A technical document (in German) outlining the tools and system design for the automated workflows.
+- `cost.html`: An HTML report analyzing the costs of various AI tools, with Leonardo AI highlighted as my chosen tool.
+- `BeforeFirstProject.html`: A comprehensive HTML summary of our entire conversation and project plan.
+- `project_summary.txt`: This file itself, designed to be used as a context prompt.
+
+Based on this context, I am now ready to discuss the next steps.

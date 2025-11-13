@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UML Diagram Summary</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3, h4 {
+            color: #0056b3;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .diagram-section {
+            margin-bottom: 40px;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Main UML Diagram Categories</h1>
+
+        <div class="diagram-section">
+            <h2>1. Structural diagrams (static structure)</h2>
+            <p>Used to describe system architecture, classes, components, and dependencies:</p>
+
+            <h3>Class Diagram</h3>
+            <p><b>Usage:</b> Shows the static structure of a system, including classes, their attributes, methods, and the relationships between them. It's the backbone of object-oriented modeling.</p>
+            <p><b>Example Case:</b> Modeling the structure of a customer order system, showing classes like `Customer`, `Order`, and `Product`, and how they relate to each other.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/UML_Class_diagram_example.svg/800px-UML_Class_diagram_example.svg.png" alt="Class Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Class:</b> Represents a blueprint for objects, typically divided into three compartments: Name, Attributes, and Operations (methods).</li>
+                <li><b>Visibility:</b> Symbols indicating access levels for attributes and methods (e.g., public `+`, private `-`, protected `#`, package `~`).</li>
+                <li><b>Relationships:</b> Define how classes interact:
+                    <ul>
+                        <li><b>Association:</b> A general relationship between two classes.</li>
+                        <li><b>Generalization (Inheritance):</b> An "is-a" relationship where a subclass inherits from a superclass.</li>
+                        <li><b>Aggregation:</b> A "has-a" relationship where parts can exist independently of the whole.</li>
+                        <li><b>Composition:</b> A strong "has-a" relationship where parts cannot exist without the whole.</li>
+                        <li><b>Dependency:</b> One class relies on another for its functionality.</li>
+                        <li><b>Realization:</b> A class implements an interface.</li>
+                    </ul>
+                </li>
+                <li><b>Interfaces:</b> A collection of operation signatures defining a cohesive set of behaviors.</li>
+                <li><b>Data Types:</b> Classifiers defining data values (primitive types, enumerations).</li>
+                <li><b>Packages:</b> Used to organize related classifiers within a diagram.</li>
+            </ul>
+
+            <h3>Package Diagram</h3>
+            <p><b>Usage:</b> Organizes the elements of a system into groups (packages). It helps to manage complexity by showing dependencies between packages.</p>
+            <p><b>Example Case:</b> Structuring a large e-commerce application into packages like `Billing`, `Shipping`, and `UserManagement`.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Package_diagram_example.svg" alt="Package Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Package:</b> The fundamental unit, depicted as a folder-like icon, acting as a container for UML elements.</li>
+                <li><b>Packageable Element:</b> Named elements directly owned by a package (e.g., classes, interfaces, components).</li>
+                <li><b>Dependencies:</b> Illustrate that changes in one package might affect another:
+                    <ul>
+                        <li><b>Element Import:</b> Importing a specific packageable element.</li>
+                        <li><b>Package Import:</b> Importing an entire package.</li>
+                        <li><b>Package Merge:</b> Contents of one package are extended by another.</li>
+                        <li><b>Access:</b> One package requires functionality from another.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Component Diagram</h3>
+            <p><b>Usage:</b> Describes how a software system is split up into components and shows the dependencies between these components.</p>
+            <p><b>Example Case:</b> Showing the high-level components of a web application, such as a `WebApp`, `APIServer`, and `Database`.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a1/UML_Component_Diagram_example.svg" alt="Component Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Component:</b> A modular, replaceable, and independent part of a system.</li>
+                <li><b>Interface:</b> Defines operations a component either provides (lollipop notation) or requires (socket notation).</li>
+                <li><b>Port:</b> A specific interaction point on the boundary of a component.</li>
+                <li><b>Connector:</b> Illustrates communication and relationships between two components.</li>
+                <li><b>Dependency:</b> A relationship indicating one component relies on another (dashed line).</li>
+                <li><b>Artifacts:</b> Physical implementation units of a system (e.g., executable files, libraries).</li>
+                <li><b>Packages:</b> Used to group related model elements.</li>
+            </ul>
+
+            <h3>Deployment Diagram</h3>
+            <p><b>Usage:</b> Shows the physical deployment of software artifacts on hardware nodes. It models the runtime architecture of a system.</p>
+            <p><b>Example Case:</b> Illustrating how a web application's components are deployed across a web server, application server, and database server.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/UML_Deployment_Diagram_example.svg" alt="Deployment Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Nodes:</b> Represent physical hardware (e.g., servers, devices) or software execution environments (e.g., OS, JVM).</li>
+                <li><b>Artifacts:</b> Concrete, physical pieces of information deployed on nodes (e.g., executable files, libraries, configuration files).</li>
+                <li><b>Components:</b> Modular and reusable parts of a system, implemented by artifacts.</li>
+                <li><b>Communication Paths:</b> Associations between nodes through which they exchange signals and messages.</li>
+                <li><b>Dependencies:</b> One node or component relies on another.</li>
+                <li><b>Interfaces:</b> A contractual relationship a component must implement.</li>
+                <li><b>Deployment Specifications:</b> Define deployment properties for an artifact on a node.</li>
+            </ul>
+
+            <h3>Object Diagram</h3>
+            <p><b>Usage:</b> Shows a snapshot of the instances of classes (objects) and their relationships at a specific point in time. It's a concrete representation of a class diagram.</p>
+            <p><b>Example Case:</b> Displaying a specific customer's order, with object instances for that `Customer`, their `Order`, and the `Products` in that order.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/24/UML_Object_diagram_example.svg" alt="Object Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Objects (Instance Specifications):</b> Specific instances of classes, named as `objectName: ClassName` (underlined).</li>
+                <li><b>Attributes and Values:</b> Attributes of an object listed with their specific values at a given time.</li>
+                <li><b>Links:</b> Connections between objects, representing instances of associations.</li>
+                <li><b>Relationships:</b> Various relationships between object instances (Association, Dependency, Aggregation, Composition, Generalization, Realization).</li>
+            </ul>
+        </div>
+
+        <div class="diagram-section">
+            <h2>2. Behavioral diagrams (dynamic behavior)</h2>
+            <p>Used to describe logic, flow, and interactions:</p>
+
+            <h3>Use Case Diagram</h3>
+            <p><b>Usage:</b> Describes the functional requirements of a system from the user's perspective. It shows the interactions between users (actors) and the system to achieve a goal.</p>
+            <p><b>Example Case:</b> Modeling how a `Customer` can `ViewProducts`, `AddToCart`, and `Checkout` in an online store.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/56/Use_case_restaurant_model.svg" alt="Use Case Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Actors:</b> External entities (users, systems) interacting with the system, typically stick figures.</li>
+                <li><b>Use Cases:</b> Specific functions or actions the system performs, represented as horizontal ellipses.</li>
+                <li><b>System Boundary:</b> A rectangle defining the scope of the system.</li>
+                <li><b>Relationships:</b>
+                    <ul>
+                        <li><b>Association:</b> Interaction between an actor and a use case.</li>
+                        <li><b>Include:</b> One use case incorporates another's functionality.</li>
+                        <li><b>Extend:</b> One use case adds optional functionality to another.</li>
+                        <li><b>Generalization:</b> "Is-a" connection between use cases or actors.</li>
+                    </ul>
+                </li>
+            </ul>
+
+            <h3>Sequence Diagram</h3>
+            <p><b>Usage:</b> Shows how objects interact with each other over time. It emphasizes the time-ordered sequence of messages exchanged between objects.</p>
+            <p><b>Example Case:</b> Detailing the sequence of events when a user logs in, from the UI to the authentication service and the database.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a3/UML_Sequence_diagram_example.svg" alt="Sequence Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Lifeline:</b> Represents an individual participant or object, with a vertical dashed line indicating its existence over time.</li>
+                <li><b>Message:</b> Depicts communication between lifelines (Synchronous, Asynchronous, Self-Message, Return Message).</li>
+                <li><b>Execution Specification (Activation Bar):</b> A thin rectangle showing when an object is actively performing an operation.</li>
+                <li><b>Combined Fragment:</b> Used to model complex interactions (e.g., `alt` for alternative, `opt` for optional, `loop` for repetition, `par` for parallel).</li>
+                <li><b>Interaction Use:</b> Allows for reusing a predefined sequence of interactions.</li>
+                <li><b>State Invariant:</b> A condition that must hold true for a lifeline at a specific point.</li>
+                <li><b>Destruction Occurrence:</b> An 'X' mark indicating an object is destroyed.</li>
+                <li><b>Gate:</b> A connection point for messages entering or exiting a combined fragment.</li>
+            </ul>
+
+            <h3>Activity Diagram</h3>
+            <p><b>Usage:</b> Models the flow of control from one activity to another. It's useful for describing business processes and workflows.</p>
+            <p><b>Example Case:</b> Outlining the steps of an order fulfillment process, from receiving the order to shipping the product.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/UML_activity_diagram_example.svg" alt="Activity Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Initial Node:</b> Marks the starting point of the activity flow (solid black circle).</li>
+                <li><b>Activity/Action State:</b> Represents a single step or task (rounded-corner rectangle).</li>
+                <li><b>Control Flow:</b> Arrows indicating the direction and sequence of activities.</li>
+                <li><b>Decision Node:</b> A diamond shape where the flow branches based on a condition.</li>
+                <li><b>Merge Node:</b> A diamond shape that brings together alternative flows.</li>
+                <li><b>Fork Node:</b> A thick line to split a single flow into multiple concurrent activities.</li>
+                <li><b>Join Node:</b> A thick line that synchronizes and combines multiple concurrent activities.</li>
+                <li><b>Final Node:</b> Indicates the end of the activity flow (Activity Final, Flow Final).</li>
+                <li><b>Object/Object Flow:</b> Represents the movement of data or objects.</li>
+                <li><b>Activity Partition (Swimlane):</b> Rectangular areas to group related activities and assign responsibility.</li>
+                <li><b>Guard:</b> A condition on a control flow that must be true to proceed.</li>
+            </ul>
+
+            <h3>State Machine Diagram</h3>
+            <p><b>Usage:</b> Describes the different states an object can be in and how it transitions from one state to another in response to events.</p>
+            <p><b>Example Case:</b> Modeling the states of an online order, such as `Pending`, `Processing`, `Shipped`, and `Delivered`.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/UML_State_Machine_diagram_example.svg" alt="State Machine Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>States:</b> Conditions an object can exist in (rounded rectangles: Simple, Composite, Initial, Final).</li>
+                <li><b>Transitions:</b> Directed arrows showing paths between states, triggered by events, with optional guards and effects.</li>
+                <li><b>Events:</b> Occurrences that trigger transitions.</li>
+                <li><b>Actions:</b> Operations executed in response to events or state changes (Entry, Exit).</li>
+                <li><b>Pseudostates:</b> Abstract vertices structuring transitions (e.g., Choice, Junction, Fork, Join, History States).</li>
+                <li><b>Regions (Orthogonal Regions):</b> Used within composite states to model concurrent behavior.</li>
+            </ul>
+
+            <h3>Communication Diagram</h3>
+            <p><b>Usage:</b> Shows the interactions between objects in terms of the messages exchanged. It emphasizes the relationships between objects rather than the time sequence.</p>
+            <p><b>Example Case:</b> Illustrating how the objects in a "place order" scenario collaborate, focusing on the links between them.</p>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/UML_Collaboration_diagram_example.svg" alt="Communication Diagram Example">
+            <h4>Components:</h4>
+            <ul>
+                <li><b>Objects/Lifelines:</b> Active participants in the interaction (rectangles).</li>
+                <li><b>Actors:</b> External entities interacting with the system (stick figures).</li>
+                <li><b>Links:</b> Lines connecting objects, indicating an association.</li>
+                <li><b>Messages:</b> Arrows on links showing direction of communication, with name and sequence number.</li>
+                <li><b>Sequence Numbers:</b> Numerical prefixes defining chronological order of messages.</li>
+                <li><b>Interaction Occurrences:</b> Specific situations where interactions take place.</li>
+                <li><b>Roles:</b> Define the specific part an object plays.</li>
+                <li><b>Interaction Frames:</b> Provide a contextual boundary for the diagram.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

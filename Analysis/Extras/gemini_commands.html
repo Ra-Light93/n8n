@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini CLI Commands</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 2em;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #2980b9;
+            border-bottom: 2px solid #2980b9;
+            padding-bottom: 5px;
+            margin-top: 2em;
+        }
+        h3 {
+            color: #c0392b;
+            margin-top: 1.5em;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 1.5em;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        strong {
+            color: #000;
+        }
+        p {
+            text-align: justify;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f1f1f1;
+            padding: 1em;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #ccc;
+            margin: 2em 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gemini CLI Commands</h1>
+<p>Here is a list of commands, descriptions, and examples from the Gemini CLI GitHub page.</p>
+<hr>
+<h2>Basic Usage</h2>
+<h3><code>gemini</code></h3>
+<ul>
+<li><strong>Description:</strong> Starts the Gemini CLI in the current directory.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini</code></pre>
+</li>
+</ul>
+<h3><code>gemini --include-directories &lt;directories&gt;</code></h3>
+<ul>
+<li><strong>Description:</strong> Includes multiple directories for Gemini to access.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini --include-directories ../lib,../docs</code></pre>
+</li>
+</ul>
+<h3><code>gemini -m &lt;model_name&gt;</code></h3>
+<ul>
+<li><strong>Description:</strong> Uses a specific Gemini model.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini -m gemini-2.5-flash</code></pre>
+</li>
+</ul>
+<hr>
+<h2>Non-interactive Mode for Scripts</h2>
+<h3><code>gemini -p "&lt;prompt&gt;"</code></h3>
+<ul>
+<li><strong>Description:</strong> Gets a simple text response from Gemini.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini -p "Explain the architecture of this codebase"</code></pre>
+</li>
+</ul>
+<h3><code>gemini -p "&lt;prompt&gt;" --output-format json</code></h3>
+<ul>
+<li><strong>Description:</strong> Gets a structured JSON output for advanced scripting.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini -p "Explain the architecture of this codebase" --output-format json</code></pre>
+</li>
+</ul>
+<h3><code>gemini -p "&lt;prompt&gt;" --output-format stream-json</code></h3>
+<ul>
+<li><strong>Description:</strong> Gets newline-delimited JSON events for real-time event streaming.</li>
+<li><strong>Example:</strong>
+<pre><code>gemini -p "Run tests and deploy" --output-format stream-json</code></pre>
+</li>
+</ul>
+<hr>
+<h2>Quick Examples (Interactive Prompts)</h2>
+<h3><code>gemini &gt; Write me a Discord bot...</code></h3>
+<ul>
+<li><strong>Description:</strong> An interactive prompt to generate a Discord bot.</li>
+<li><strong>Example:</strong>
+<pre><code>cd new-project/
+gemini &gt; Write me a Discord bot that answers questions using a FAQ.md file I will provide</code></pre>
+</li>
+</ul>
+<h3><code>gemini &gt; Give me a summary...</code></h3>
+<ul>
+<li><strong>Description:</strong> An interactive prompt to summarize recent code changes.</li>
+<li><strong>Example:</strong>
+<pre><code>git clone https://github.com/google-gemini/gemini-cli
+cd gemini-cli
+gemini &gt; Give me a summary of all of the changes that went in yesterday</code></pre>
+</li>
+</ul>
+<hr>
+<h2>Authentication</h2>
+<h3><code>gemini</code> (with environment variables)</h3>
+<ul>
+<li><strong>Description:</strong> Starts Gemini CLI after configuring authentication via Google Cloud Project, Gemini API Key, or Vertex AI.</li>
+<li><strong>Examples:</strong>
+<ul>
+<li><strong>Option 1: Login with Google</strong>
+<pre><code>export GOOGLE_CLOUD_PROJECT="YOUR_PROJECT_ID"
+gemini</code></pre>
+</li>
+<li><strong>Option 2: Gemini API Key</strong>
+<pre><code>export GEMINI_API_KEY="YOUR_API_KEY"
+gemini</code></pre>
+</li>
+<li><strong>Option 3: Vertex AI</strong>
+<pre><code>export GOOGLE_API_KEY="YOUR_API_KEY"
+export GOOGLE_GENAI_USE_VERTEXAI=true
+gemini</code></pre>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>Using MCP Servers (Custom Integrations)</h2>
+<h3><code>@github</code></h3>
+<ul>
+<li><strong>Description:</strong> Lists open pull requests using a configured GitHub MCP server.</li>
+<li><strong>Example:</strong>
+<pre><code>@github List my open pull requests</code></pre>
+</li>
+</ul>
+<h3><code>@slack</code></h3>
+<ul>
+<li><strong>Description:</strong> Sends a summary of commits to a Slack channel using a configured Slack MCP server.</li>
+<li><strong>Example:</strong>
+<pre><code>@slack Send a summary of today's commits to #dev channel</code></pre>
+</li>
+</ul>
+<h3><code>@database</code></h3>
+<ul>
+<li><strong>Description:</strong> Runs a database query using a configured database MCP server.</li>
+<li><strong>Example:</strong>
+<pre><code>@database Run a query to find inactive users</code></pre>
+</li>
+</ul>
+<hr>
+<h2>Other Commands</h2>
+<h3><code>/bug</code></h3>
+<ul>
+<li><strong>Description:</strong> A command to report issues directly from the CLI.</li>
+</ul>
+</body>
+</html>
