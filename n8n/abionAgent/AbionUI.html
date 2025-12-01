@@ -4,7 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KI-Prompt Konfiguration</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <style>
+        .system-prompt-title {
+    position: relative;
+    justify-content: space-between;
+}
+
+.info-icon {
+    font-size: 20px;
+    cursor: pointer;
+    margin-left: 8px;
+    color: #6B7280;
+    flex-shrink: 0;
+}
+
+.info-icon:hover {
+    color: #111827;
+}
+
+.info-tooltip {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    z-index: 10;
+    background: #0f172a;
+    color: #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.35);
+    font-size: 12px;
+    max-width: 420px;
+    max-height: 260px;
+    overflow: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.info-tooltip pre {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    white-space: pre;
+}
+
+.info-icon:hover + .info-tooltip,
+.info-tooltip:hover {
+    opacity: 1;
+    pointer-events: auto;
+}
         :root {
             --primary-color: #0D9488;
             --primary-light: #14B8A6;
@@ -533,15 +581,86 @@
                 box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
                 transition: all 0.25s ease;
             }
+            
+            .save-set-section {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+                margin-top: 25px;
+            }
 
-        .system-actions .btn {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-        }
+            .save-set-section input {
+                padding: 16px;
+                font-size: 16px;
+                border-radius: 16px;
+                border: 2px solid #C4B5FD;
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            .save-set-section input:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+            }
+
+            #toast-container {
+                position: fixed;
+                right: 30px;
+                bottom: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                z-index: 9999;
+            }
+
+            .toast {
+                min-width: 460px;
+                max-width: 560px;
+                padding: 12px 16px;
+                border-radius: 14px;
+                font-size: 20px;
+                font-weight: 500;
+                color: #ffffff;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+                display: flex;
+                align-items: center;
+                opacity: 0;
+                transform: translateX(120%);
+                animation: toast-in 0.25s ease-out forwards, toast-out 0.25s ease-in 4.5s forwards;
+            }
+
+            .toast-success {
+                background: var(--gradient-success);
+            }
+
+            .toast-danger {
+                background: linear-gradient(135deg, #ef4444, #b91c1c);
+            }
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(120%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes toast-out {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(120%);
+    }
+}
     </style>
 </head>
 <body>
+    <div id="toast-container"></div>
     <div class="container">
         <h1>KI-Prompt Konfiguration</h1>
         
@@ -551,10 +670,29 @@
             <p class="card-description">Definieren Sie hier die 7 System-Prompts für die KI-Analyse:</p>
             
             <div class="system-prompt-grid">
-                <div class="system-prompt-card prompt-1">
-                    <div class="system-prompt-title">Stellenanzeige Analyse</div>
-                    <textarea id="system-1" rows="5" placeholder="System-Prompt für die Stellenanzeigen-Analyse..."></textarea>
-                </div>
+<div class="system-prompt-card prompt-1">
+    <div class="system-prompt-title">
+        <span>Stellenanzeige Analyse</span>
+
+        <span class="material-icons info-icon">help_outline</span>
+
+        <div class="info-tooltip">
+<pre>{
+  "erster_eindruck": [],
+  "schwaechen_und_risiken": [],
+  "chancen_und_potenziale": {
+    "staerken_die_genutzt_werden_koennen": [],
+    "kommunikationsansaetze": []
+  },
+  "handlungsempfehlungen": [
+    { "titel": "", "beschreibung": "" }
+  ]
+}</pre>
+        </div>
+    </div>
+
+    <textarea id="system-1" rows="5" placeholder="System-Prompt für die Stellenanzeigen-Analyse..."></textarea>
+</div>
                 
                 <div class="system-prompt-card prompt-2">
                     <div class="system-prompt-title">Website Aussenwirkung</div>
@@ -586,20 +724,22 @@
                     <textarea id="system-7" rows="5" placeholder="System-Prompt für Maßnahmenempfehlungen..."></textarea>
                 </div>
 
-                <div class="system-actions">
-                    <input
-                        type="text"
-                        id="prompt-set-name"
-                        placeholder="Name des Prompt-Sets (z.B. Standard Analyse)"
-                    >
-                    <button id="save-prompt-set-btn" class="btn btn-info">
-                        💾 Save Prompt Set
-                    </button>
+            </div>
+        </div>
 
-                    <button id="load-defaults-btn" class="btn btn-info">
-                        📥 Standard-Prompts laden
-                    </button>
-                </div>
+        <div class="card card-save-set">
+            <h2>Prompt-Set speichern</h2>
+            <p class="card-description">Geben Sie einen Namen ein und speichern Sie dieses Prompt-Set:</p>
+
+            <div class="save-set-section">
+
+                <button id="save-prompt-set-btn" class="btn btn-success">
+                    💾 Save Prompt Set
+                </button>
+
+                <button id="load-defaults-btn" class="btn btn-info">
+                    📥 Standard-Prompts laden
+                </button>
             </div>
         </div>
         
@@ -608,7 +748,7 @@
             <p class="card-description">Definieren Sie hier die Benutzer-Prompts für die konkrete Analyse:</p>
             
             <div id="user-prompts-container">
-                <!-- User prompts werden hier dynamisch eingefügt -->
+               
             </div>
             
             <div class="form-group">
@@ -667,7 +807,9 @@
     const loadDefaultsBtn = document.getElementById('load-defaults-btn');
     const alertDiv = document.getElementById('alert');
     const resultBox = document.getElementById('result-box');
-    
+    const savePromptSetBtn = document.getElementById('save-prompt-set-btn');
+    const toastContainer = document.getElementById('toast-container');
+
     // Initialen User Prompt erstellen
     createPrompt(userPromptsContainer, 'user', true);
     
@@ -678,12 +820,63 @@
     
     submitBtn.addEventListener('click', submitForm);
     loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
+    savePromptSetBtn.addEventListener('click', savePromptSet);
     
+    const savePromptSetUrl = 'http://localhost:5678/webhook-test/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
+
+
+
+    function showConfirmation(message) {
+    return new Promise((resolve) => {
+        const result = confirm(message);
+        resolve(result);
+    });
+}
+    async function savePromptSet() {
+        const setName = "default"
+
+        const prompts = {
+            "Stellenanzeige Analyse": document.getElementById('system-1').value.trim(),
+            "Website Aussenwirkung": document.getElementById('system-2').value.trim(),
+            "Jobboersen Verbreitung": document.getElementById('system-3').value.trim(),
+            "Bewertungen Analyse": document.getElementById('system-4').value.trim(),
+            "Cost For Vacancy Berechnung": document.getElementById('system-5').value.trim(),
+            "Marktposition Stelle Konkurrenz": document.getElementById('system-6').value.trim(),
+            "Massnahmen Kurz Mittel Lang": document.getElementById('system-7').value.trim()
+        };
+        
+        const confirm = await showConfirmation("sure ? data will be over writen")
+        if (!confirm){return}
+
+        const payload = {
+            set_name: setName,
+            prompts: prompts
+        };
+
+        try {
+
+            const response = await fetch(savePromptSetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            showAlert('Prompt-Set erfolgreich gespeichert!', 'success');
+                        showToast('Prompt-Set erfolgreich gespeichert!', 'success');
+        } catch (error) {
+            console.error('Fehler beim Speichern des Prompt-Sets:', error);
+            showToast('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
+            showAlert('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
+        }
+    }
+
     // Function to load default prompts from webhook
     async function loadDefaultPrompts() {
         try {
-            showAlert('Lade Standard-Prompts...', 'success');
-            
             const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
                 method: 'POST',
                 headers: {
@@ -698,20 +891,30 @@
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
     
+    
             const defaultData = await response.json(); console.log(defaultData)
+
             applyDefaultData(defaultData);
-            showAlert('Standard-Prompts erfolgreich geladen!', 'success');
+            showAlert('Lade Standard-Prompts...', 'success');
+            showToast('Prompt-Set erfolgreich gespeichert!', 'success');
             
         } catch (error) {
             console.error('Fehler beim Laden der Standard-Prompts:', error);
             showAlert('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+            showToast('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+
         }
     }
 
-    // Function to apply the loaded default data
+
     function applyDefaultData(defaultData) {
-        // Apply system prompts
-        if (defaultData.system_prompts) {
+        // Neues Format:
+        // [ { "system prompts": { ... } } ]
+        const dataObj = Array.isArray(defaultData) ? defaultData[0] : defaultData;
+
+        const sys = dataObj["system prompts"]; // neuer Key
+
+        if (sys) {
             const prompts = [
                 { id: 'system-1', key: 'Stellenanzeige Analyse' },
                 { id: 'system-2', key: 'Website Aussenwirkung' },
@@ -721,29 +924,24 @@
                 { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
                 { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
             ];
-            
-            prompts.forEach(prompt => {
-                const textarea = document.getElementById(prompt.id);
-                if (textarea && defaultData.system_prompts[prompt.key]) {
-                    textarea.value = defaultData.system_prompts[prompt.key];
+
+            prompts.forEach(p => {
+                if (sys[p.key]) {
+                    document.getElementById(p.id).value = sys[p.key];
                 }
             });
         }
-        
-        // Apply default model
-        if (defaultData.default_model) {
-            const modelSelect = document.getElementById('model-select');
-            modelSelect.value = defaultData.default_model;
+
+        // Optional: andere Defaults (falls später wieder kommen)
+        if (dataObj.default_model) {
+            document.getElementById('model-select').value = dataObj.default_model;
         }
-        
-        // Apply default result folder
-        if (defaultData.default_result_folder) {
-            const resultFolderInput = document.getElementById('result-folder');
-            resultFolderInput.value = defaultData.default_result_folder;
+
+        if (dataObj.default_result_folder) {
+            document.getElementById('result-folder').value = dataObj.default_result_folder;
         }
     }
-    
-    // Funktionen
+
     function createPrompt(container, type, isFirst = false) {
         const promptCount = container.children.length + 1;
         const promptDiv = document.createElement('div');
@@ -766,6 +964,7 @@
                 updatePromptLabels(container, type);
             } else {
                 showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+                showToast('Mindestens 1 User-Prompt erforderlich', 'danger');
             }
         });
         
@@ -847,21 +1046,25 @@
         
         if (Object.keys(systemPrompts).length === 0) {
             showAlert('Mindestens 1 System-Prompt erforderlich', 'danger');
+            showToast('Mindestens 1 System-Prompt erforderlich', 'danger');
             return false;
         }
         
         if (userPrompts.length === 0) {
             showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+            showToast('Mindestens 1  User-Prompt  erforderlich', 'danger');
             return false;
         }
         
         if (!selectedModel) {
             showAlert('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
+            showToast();
             return false;
         }
         
         if (!resultFolder) {
             showAlert('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger');
+            showToast('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger')
             return false;
         }
         
@@ -903,8 +1106,10 @@
         .then(response => {
             if (response.ok) {
                 showAlert('Daten erfolgreich an n8n Webhook gesendet!', 'success');
+                showToast('Daten erfolgreich an n8n Webhook gesendet!', 'success');
             } else {
                 throw new Error('Fehler beim Senden der Daten');
+                showToast('Fehler beim Senden der Daten');
             }
         })
         .catch(error => {
@@ -924,11 +1129,25 @@
         
         setTimeout(hideAlert, 5000);
     }
+
+    function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // nach Ablauf der Animation entfernen (ca. 5s)
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
     
     function hideAlert() {
         alertDiv.style.display = 'none';
     }
 });
+
 </script>
 </body>
 </html>
