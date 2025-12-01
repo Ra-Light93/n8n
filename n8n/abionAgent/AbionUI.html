@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KI-Prompt Konfiguration</title>
+    <style>
+        :root {
+            --primary-color: #0D9488;
+            --primary-light: #14B8A6;
+            --primary-dark: #0F766E;
+            --secondary-color: #7C3AED;
+            --secondary-light: #8B5CF6;
+            --accent-color: #06B6D4;
+            --accent-light: #22D3EE;
+            --success-color: #10B981;
+            --danger-color: #EF4444;
+            --warning-color: #F59E0B;
+            --info-color: #3B82F6;
+            --purple-color: #8B5CF6;
+            --light-color: #F8FAFC;
+            --dark-color: #0F172A;
+            --gray-color: #64748B;
+            --border-radius: 16px;
+            --box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+            --gradient-secondary: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+            --gradient-accent: linear-gradient(135deg, #06B6D4 0%, #22D3EE 100%);
+            --gradient-warning: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+            --gradient-info: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            --gradient-purple: linear-gradient(135deg, #8B5CF6 0%, #C4B5FD 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+        }
+
+        /* System card styling - Professional and structured */
+        .card-system::before {
+            background: var(--gradient-primary);
+        }
+
+        .card-system {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%);
+            border: 2px solid rgba(13, 148, 136, 0.2);
+             position: relative;
+        }
+
+        /* User/Config card styling - COMPLETELY different visual identity */
+        .card-user::before {
+            background: var(--gradient-secondary);
+        }
+
+        .card-user {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 245, 255, 0.98) 100%);
+            border: 2px solid rgba(124, 58, 237, 0.25);
+            position: relative;
+        }
+
+        .card-user::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .card-model::before {
+            background: var(--gradient-accent);
+        }
+
+        .card-model {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(235, 248, 255, 0.98) 100%);
+            border: 2px solid rgba(6, 182, 212, 0.25);
+            position: relative;
+        }
+
+        .card-model::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        .card-result {
+           margin-top: 40px;
+        }
+        .card-result::before {
+            background: var(--gradient-success);
+        }
+
+        .card-result {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(235, 255, 245, 0.98) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.25);
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            font-weight: 800;
+            font-size: 3rem;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        h2 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 30px;
+            margin-right: 15px;
+            border-radius: 4px;
+        }
+
+        .card-system h2::before {
+            background: var(--primary-color);
+        }
+
+        .card-user h2::before {
+            background: var(--secondary-color);
+        }
+
+        .card-model h2::before {
+            background: var(--accent-color);
+        }
+
+        .card-result h2::before {
+            background: var(--success-color);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 15px;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #E2E8F0;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 15px;
+            resize: vertical;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
+            background-color: white;
+        }
+
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230F172A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            background-size: 18px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 32px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 6px 12px rgba(13, 148, 136, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        #submit-btn{
+            padding: 28px 60px;
+            font-size: 24px;
+            border-radius: 30px;
+        }
+
+        .btn-danger {
+            background: var(--gradient-secondary);
+            box-shadow: 0 6px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-small {
+            padding: 12px 20px;
+            font-size: 14px;
+        }
+
+        .prompt-container {
+            margin-bottom: 25px;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(124, 58, 237, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .prompt-label {
+            font-weight: 700;
+            color: var(--dark-color);
+            font-size: 16px;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+
+        .alert {
+            margin-top: 30px;
+            padding: 18px 24px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            display: none;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--success-color);
+            color: var(--success-color);
+        }
+
+        .result-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-top: 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 2px solid #E2E8F0;
+            display: none;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-description {
+            color: var(--gray-color);
+            margin-bottom: 25px;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .system-prompt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .system-prompt-card {
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border-left: 6px solid;
+            background-color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .system-prompt-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.3) 100%);
+            z-index: 0;
+        }
+
+        .system-prompt-title {
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 16px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .system-prompt-title::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.2;
+        }
+
+        .system-prompt-card textarea {
+            position: relative;
+            z-index: 1;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .system-prompt-card textarea:focus {
+            background-color: white;
+        }
+
+/* Specific colors for each system prompt - light + clearly different */
+
+/* Soft Wine Red */
+.prompt-1 {
+    border-color: #C7365F;
+    background: linear-gradient(135deg, rgba(199, 54, 95, 0.18) 0%, rgba(150, 30, 70, 0.18) 100%);
+}
+.prompt-1 .system-prompt-title {
+    color: #C7365F;
+}
+
+/* Soft Violet */
+.prompt-2 {
+    border-color: #A78BFA;
+    background: linear-gradient(135deg, rgba(167, 139, 250, 0.18) 0%, rgba(196, 181, 253, 0.18) 100%);
+}
+.prompt-2 .system-prompt-title {
+    color: #A78BFA;
+}
+
+/* Soft Cyan */
+.prompt-3 {
+    border-color: #67E8F9;
+    background: linear-gradient(135deg, rgba(103, 232, 249, 0.18) 0%, rgba(125, 211, 252, 0.18) 100%);
+}
+.prompt-3 .system-prompt-title {
+    color: #06B6D4;
+}
+
+/* Soft Green */
+.prompt-4 {
+    border-color: #6EE7B7;
+    background: linear-gradient(135deg, rgba(110, 231, 183, 0.18) 0%, rgba(52, 211, 153, 0.18) 100%);
+}
+.prompt-4 .system-prompt-title {
+    color: #10B981;
+}
+
+/* Soft Amber */
+.prompt-5 {
+    border-color: #FDE68A;
+    background: linear-gradient(135deg, rgba(253, 230, 138, 0.18) 0%, rgba(251, 191, 36, 0.18) 100%);
+}
+.prompt-5 .system-prompt-title {
+    color: #F59E0B;
+}
+
+/* Soft Blue */
+.prompt-6 {
+    border-color: #93C5FD;
+    background: linear-gradient(135deg, rgba(147, 197, 253, 0.18) 0%, rgba(96, 165, 250, 0.18) 100%);
+}
+.prompt-6 .system-prompt-title {
+    color: #3B82F6;
+}
+
+/* Soft Purple */
+.prompt-7 {
+    border-color: #D8B4FE;
+    background: linear-gradient(135deg, rgba(216, 180, 254, 0.18) 0%, rgba(167, 139, 250, 0.18) 100%);
+}
+.prompt-7 .system-prompt-title {
+    color: #8B5CF6;
+}
+
+        .model-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .actions .btn {
+                width: 100%;
+            }
+            
+            .prompt-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .prompt-header .btn {
+                align-self: flex-end;
+            }
+            
+            .system-prompt-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .model-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+            #load-defaults-btn {
+                background: linear-gradient(135deg, #81acf2, #5366ef);
+                color: white;
+                padding: 16px 34px;
+                font-size: 16px;
+                font-weight: 700;
+                border: none;
+                border-radius: 18px;
+                cursor: pointer;
+                box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+                transition: all 0.25s ease;
+            }
+
+        .system-actions .btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KI-Prompt Konfiguration</h1>
+        
+        
+        <div class="card card-system">
+            <h2>System Prompts</h2>
+            <p class="card-description">Definieren Sie hier die 7 System-Prompts für die KI-Analyse:</p>
+            
+            <div class="system-prompt-grid">
+                <div class="system-prompt-card prompt-1">
+                    <div class="system-prompt-title">Stellenanzeige Analyse</div>
+                    <textarea id="system-1" rows="5" placeholder="System-Prompt für die Stellenanzeigen-Analyse..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-2">
+                    <div class="system-prompt-title">Website Aussenwirkung</div>
+                    <textarea id="system-2" rows="5" placeholder="System-Prompt für die Website-Außenwirkungsanalyse..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-3">
+                    <div class="system-prompt-title">Jobboersen Verbreitung</div>
+                    <textarea id="system-3" rows="5" placeholder="System-Prompt für die Jobbörsen-Verbreitungsanalyse..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-4">
+                    <div class="system-prompt-title">Bewertungen Analyse</div>
+                    <textarea id="system-4" rows="5" placeholder="System-Prompt für die Bewertungsanalyse..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-5">
+                    <div class="system-prompt-title">Cost For Vacancy Berechnung</div>
+                    <textarea id="system-5" rows="5" placeholder="System-Prompt für die Cost-For-Vacancy-Berechnung..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-6">
+                    <div class="system-prompt-title">Marktposition Stelle Konkurrenz</div>
+                    <textarea id="system-6" rows="5" placeholder="System-Prompt für die Marktpositionsanalyse..."></textarea>
+                </div>
+                
+                <div class="system-prompt-card prompt-7">
+                    <div class="system-prompt-title">Massnahmen Kurz Mittel Lang</div>
+                    <textarea id="system-7" rows="5" placeholder="System-Prompt für Maßnahmenempfehlungen..."></textarea>
+                </div>
+
+                <div class="system-actions">
+                    <input
+                        type="text"
+                        id="prompt-set-name"
+                        placeholder="Name des Prompt-Sets (z.B. Standard Analyse)"
+                    >
+                    <button id="save-prompt-set-btn" class="btn btn-info">
+                        💾 Save Prompt Set
+                    </button>
+
+                    <button id="load-defaults-btn" class="btn btn-info">
+                        📥 Standard-Prompts laden
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card card-user">
+            <h2>User Prompts</h2>
+            <p class="card-description">Definieren Sie hier die Benutzer-Prompts für die konkrete Analyse:</p>
+            
+            <div id="user-prompts-container">
+                <!-- User prompts werden hier dynamisch eingefügt -->
+            </div>
+            
+            <div class="form-group">
+                <button id="add-user-prompt" class="btn">+ User Prompt hinzufügen</button>
+            </div>
+        </div>
+        
+        <div class="card card-model">
+            <h2>Konfiguration</h2>
+            <p class="card-description">Wählen Sie das KI/LLM-Modell und definieren Sie den Ergebnisordner:</p>
+            
+            <div class="model-section">
+                <div class="form-group">
+                    <label for="model-select">Aktives LLM:</label>
+                    <select id="model-select">
+                        <option value="">-- Bitte wählen --</option>
+                        <option value="gpt-4">GPT-4</option>
+                        <option value="gpt-3.5">GPT-3.5</option>
+                        <option value="gemini">Gemini</option>
+                        <option value="claude">Claude</option>
+                        <option value="llama">Llama</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="result-folder">gesendete / Result Ordnername:</label>
+                    <input type="text" id="result-folder" placeholder="z.B. Analyse_Ergebnisse_2023">
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button id="submit-btn" class="btn btn-success">An n8n Webhook senden</button>
+        </div>
+        
+         <div id="alert" class="alert"></div>
+
+        <div class="card card-result">
+            <h2>Gesendete Prompts</h2>
+            <p class="card-description">Die gesendeten Daten werden hier angezeigt:</p>
+            <div id="result-box" class="result-box"></div>
+        </div>
+        
+    </div>
+
+    <div class="actions" style="justify-content: center; margin-bottom: 20px;">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    // Elemente
+    const userPromptsContainer = document.getElementById('user-prompts-container');
+    const addUserPromptBtn = document.getElementById('add-user-prompt');
+    const modelSelect = document.getElementById('model-select');
+    const resultFolderInput = document.getElementById('result-folder');
+    const submitBtn = document.getElementById('submit-btn');
+    const loadDefaultsBtn = document.getElementById('load-defaults-btn');
+    const alertDiv = document.getElementById('alert');
+    const resultBox = document.getElementById('result-box');
+    
+    // Initialen User Prompt erstellen
+    createPrompt(userPromptsContainer, 'user', true);
+    
+    // Event-Listener
+    addUserPromptBtn.addEventListener('click', function() {
+        createPrompt(userPromptsContainer, 'user');
+    });
+    
+    submitBtn.addEventListener('click', submitForm);
+    loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
+    
+    // Function to load default prompts from webhook
+    async function loadDefaultPrompts() {
+        try {
+            showAlert('Lade Standard-Prompts...', 'success');
+            
+            const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'get_default_prompts'
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const defaultData = await response.json(); console.log(defaultData)
+            applyDefaultData(defaultData);
+            showAlert('Standard-Prompts erfolgreich geladen!', 'success');
+            
+        } catch (error) {
+            console.error('Fehler beim Laden der Standard-Prompts:', error);
+            showAlert('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+        }
+    }
+
+    // Function to apply the loaded default data
+    function applyDefaultData(defaultData) {
+        // Apply system prompts
+        if (defaultData.system_prompts) {
+            const prompts = [
+                { id: 'system-1', key: 'Stellenanzeige Analyse' },
+                { id: 'system-2', key: 'Website Aussenwirkung' },
+                { id: 'system-3', key: 'Jobboersen Verbreitung' },
+                { id: 'system-4', key: 'Bewertungen Analyse' },
+                { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
+                { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
+                { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
+            ];
+            
+            prompts.forEach(prompt => {
+                const textarea = document.getElementById(prompt.id);
+                if (textarea && defaultData.system_prompts[prompt.key]) {
+                    textarea.value = defaultData.system_prompts[prompt.key];
+                }
+            });
+        }
+        
+        // Apply default model
+        if (defaultData.default_model) {
+            const modelSelect = document.getElementById('model-select');
+            modelSelect.value = defaultData.default_model;
+        }
+        
+        // Apply default result folder
+        if (defaultData.default_result_folder) {
+            const resultFolderInput = document.getElementById('result-folder');
+            resultFolderInput.value = defaultData.default_result_folder;
+        }
+    }
+    
+    // Funktionen
+    function createPrompt(container, type, isFirst = false) {
+        const promptCount = container.children.length + 1;
+        const promptDiv = document.createElement('div');
+        promptDiv.className = 'prompt-container';
+        
+        const promptHeader = document.createElement('div');
+        promptHeader.className = 'prompt-header';
+        
+        const promptLabel = document.createElement('span');
+        promptLabel.className = 'prompt-label';
+        promptLabel.textContent = `User Prompt ${promptCount}`;
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn btn-danger btn-small';
+        removeBtn.textContent = 'Entfernen';
+        removeBtn.addEventListener('click', function() {
+            if (container.children.length > 1) {
+                container.removeChild(promptDiv);
+                updatePromptLabels(container, type);
+            } else {
+                showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+            }
+        });
+        
+        // Ersten Prompt nicht entfernen können
+        if (isFirst) {
+            removeBtn.style.display = 'none';
+        }
+        
+        promptHeader.appendChild(promptLabel);
+        promptHeader.appendChild(removeBtn);
+        
+        const textarea = document.createElement('textarea');
+        textarea.rows = 4;
+        textarea.placeholder = 'Geben Sie hier den User-Prompt ein...';
+        
+        promptDiv.appendChild(promptHeader);
+        promptDiv.appendChild(textarea);
+        container.appendChild(promptDiv);
+    }
+    
+    function updatePromptLabels(container, type) {
+        const prompts = container.querySelectorAll('.prompt-container');
+        prompts.forEach((prompt, index) => {
+            const label = prompt.querySelector('.prompt-label');
+            label.textContent = `User Prompt ${index + 1}`;
+            
+            // Nur den ersten Prompt nicht entfernen können
+            const removeBtn = prompt.querySelector('.btn-danger');
+            if (index === 0) {
+                removeBtn.style.display = 'none';
+            } else {
+                removeBtn.style.display = 'inline-block';
+            }
+        });
+    }
+    
+    function getSystemPromptValues() {
+        const systemPrompts = {};
+        
+        // System Prompts sammeln
+        const prompts = [
+            { id: 'system-1', key: 'Stellenanzeige Analyse' },
+            { id: 'system-2', key: 'Website Aussenwirkung' },
+            { id: 'system-3', key: 'Jobboersen Verbreitung' },
+            { id: 'system-4', key: 'Bewertungen Analyse' },
+            { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
+            { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
+            { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
+        ];
+        
+        prompts.forEach(prompt => {
+            const value = document.getElementById(prompt.id).value.trim();
+            if (value) {
+                systemPrompts[prompt.key] = value;
+            }
+        });
+        
+        return systemPrompts;
+    }
+    
+    function getUserPromptValues() {
+        const textareas = userPromptsContainer.querySelectorAll('textarea');
+        const values = [];
+        
+        textareas.forEach(textarea => {
+            if (textarea.value.trim() !== '') {
+                values.push(textarea.value.trim());
+            }
+        });
+        
+        return values;
+    }
+    
+    function validateForm() {
+        const systemPrompts = getSystemPromptValues();
+        const userPrompts = getUserPromptValues();
+        const selectedModel = modelSelect.value;
+        const resultFolder = resultFolderInput.value.trim();
+        
+        if (Object.keys(systemPrompts).length === 0) {
+            showAlert('Mindestens 1 System-Prompt erforderlich', 'danger');
+            return false;
+        }
+        
+        if (userPrompts.length === 0) {
+            showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+            return false;
+        }
+        
+        if (!selectedModel) {
+            showAlert('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
+            return false;
+        }
+        
+        if (!resultFolder) {
+            showAlert('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger');
+            return false;
+        }
+        
+        return true;
+    }
+    
+    function submitForm() {
+        if (!validateForm()) {
+            return;
+        }
+        
+        const systemPrompts = getSystemPromptValues();
+        const userPrompts = getUserPromptValues();
+        const selectedModel = modelSelect.value;
+        const resultFolder = resultFolderInput.value.trim();
+        
+        const payload = {
+            system_prompts: systemPrompts,
+            user_prompts: userPrompts,
+            selected_model: selectedModel,
+            result_folder: resultFolder
+        };
+        
+        // Ergebnis anzeigen
+        showResult(payload);
+        
+        // Webhook-URL (hier Platzhalter - Sie können diese ersetzen) RAAD
+        const webhookUrl = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
+    
+        
+        // POST-Request an den Webhook senden
+        fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (response.ok) {
+                showAlert('Daten erfolgreich an n8n Webhook gesendet!', 'success');
+            } else {
+                throw new Error('Fehler beim Senden der Daten');
+            }
+        })
+        .catch(error => {
+            showAlert('Fehler beim Senden: ' + error.message, 'danger');
+        });
+    }
+    
+    function showResult(payload) {
+        resultBox.textContent = JSON.stringify(payload, null, 2);
+        resultBox.style.display = 'block';
+    }
+    
+    function showAlert(message, type) {
+        alertDiv.textContent = message;
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.style.display = 'block';
+        
+        setTimeout(hideAlert, 5000);
+    }
+    
+    function hideAlert() {
+        alertDiv.style.display = 'none';
+    }
+});
+</script>
+</body>
+</html>
