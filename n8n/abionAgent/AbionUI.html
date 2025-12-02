@@ -1,58 +1,12 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KI-Prompt Konfiguration</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .system-prompt-title {
-    position: relative;
-    justify-content: space-between;
-}
-
-.info-icon {
-    font-size: 20px;
-    cursor: pointer;
-    margin-left: 8px;
-    color: #6B7280;
-    flex-shrink: 0;
-}
-
-.info-icon:hover {
-    color: #111827;
-}
-
-.info-tooltip {
-    position: absolute;
-    top: 110%;
-    right: 0;
-    z-index: 10;
-    background: #0f172a;
-    color: #e5e7eb;
-    border-radius: 12px;
-    padding: 10px 12px;
-    box-shadow: 0 12px 25px rgba(0,0,0,0.35);
-    font-size: 12px;
-    max-width: 420px;
-    max-height: 260px;
-    overflow: auto;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.15s ease;
-}
-
-.info-tooltip pre {
-    margin: 0;
-    font-family: 'Courier New', monospace;
-    white-space: pre;
-}
-
-.info-icon:hover + .info-tooltip,
-.info-tooltip:hover {
-    opacity: 1;
-    pointer-events: auto;
-}
         :root {
             --primary-color: #0D9488;
             --primary-light: #14B8A6;
@@ -129,7 +83,7 @@
         .card-system {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 253, 250, 0.98) 100%);
             border: 2px solid rgba(13, 148, 136, 0.2);
-             position: relative;
+            position: relative;
         }
 
         /* User/Config card styling - COMPLETELY different visual identity */
@@ -178,8 +132,9 @@
         }
 
         .card-result {
-           margin-top: 40px;
+            margin-top: 40px;
         }
+
         .card-result::before {
             background: var(--gradient-success);
         }
@@ -261,7 +216,9 @@
             font-size: 15px;
         }
 
-        input, textarea, select {
+        input,
+        textarea,
+        select {
             width: 100%;
             padding: 18px;
             border: 2px solid #E2E8F0;
@@ -272,7 +229,9 @@
             background-color: rgba(255, 255, 255, 0.9);
         }
 
-        input:focus, textarea:focus, select:focus {
+        input:focus,
+        textarea:focus,
+        select:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2);
@@ -303,7 +262,8 @@
             position: relative;
             overflow: hidden;
         }
-        #submit-btn{
+
+        #submit-btn {
             padding: 28px 60px;
             font-size: 24px;
             border-radius: 30px;
@@ -352,7 +312,7 @@
             justify-content: center;
             margin-top: 40px;
         }
-        
+
 
         .alert {
             margin-top: 30px;
@@ -457,70 +417,77 @@
             background-color: white;
         }
 
-/* Specific colors for each system prompt - light + clearly different */
+        /* Specific colors for each system prompt - light + clearly different */
 
-/* Soft Wine Red */
-.prompt-1 {
-    border-color: #C7365F;
-    background: linear-gradient(135deg, rgba(199, 54, 95, 0.18) 0%, rgba(150, 30, 70, 0.18) 100%);
-}
-.prompt-1 .system-prompt-title {
-    color: #C7365F;
-}
+        /* Soft Wine Red */
+        .prompt-1 {
+            border-color: #C7365F;
+            background: linear-gradient(135deg, rgba(199, 54, 95, 0.18) 0%, rgba(150, 30, 70, 0.18) 100%);
+        }
 
-/* Soft Violet */
-.prompt-2 {
-    border-color: #A78BFA;
-    background: linear-gradient(135deg, rgba(167, 139, 250, 0.18) 0%, rgba(196, 181, 253, 0.18) 100%);
-}
-.prompt-2 .system-prompt-title {
-    color: #A78BFA;
-}
+        .prompt-1 .system-prompt-title {
+            color: #C7365F;
+        }
 
-/* Soft Cyan */
-.prompt-3 {
-    border-color: #67E8F9;
-    background: linear-gradient(135deg, rgba(103, 232, 249, 0.18) 0%, rgba(125, 211, 252, 0.18) 100%);
-}
-.prompt-3 .system-prompt-title {
-    color: #06B6D4;
-}
+        /* Soft Violet */
+        .prompt-2 {
+            border-color: #A78BFA;
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.18) 0%, rgba(196, 181, 253, 0.18) 100%);
+        }
 
-/* Soft Green */
-.prompt-4 {
-    border-color: #6EE7B7;
-    background: linear-gradient(135deg, rgba(110, 231, 183, 0.18) 0%, rgba(52, 211, 153, 0.18) 100%);
-}
-.prompt-4 .system-prompt-title {
-    color: #10B981;
-}
+        .prompt-2 .system-prompt-title {
+            color: #A78BFA;
+        }
 
-/* Soft Amber */
-.prompt-5 {
-    border-color: #FDE68A;
-    background: linear-gradient(135deg, rgba(253, 230, 138, 0.18) 0%, rgba(251, 191, 36, 0.18) 100%);
-}
-.prompt-5 .system-prompt-title {
-    color: #F59E0B;
-}
+        /* Soft Cyan */
+        .prompt-3 {
+            border-color: #67E8F9;
+            background: linear-gradient(135deg, rgba(103, 232, 249, 0.18) 0%, rgba(125, 211, 252, 0.18) 100%);
+        }
 
-/* Soft Blue */
-.prompt-6 {
-    border-color: #93C5FD;
-    background: linear-gradient(135deg, rgba(147, 197, 253, 0.18) 0%, rgba(96, 165, 250, 0.18) 100%);
-}
-.prompt-6 .system-prompt-title {
-    color: #3B82F6;
-}
+        .prompt-3 .system-prompt-title {
+            color: #06B6D4;
+        }
 
-/* Soft Purple */
-.prompt-7 {
-    border-color: #D8B4FE;
-    background: linear-gradient(135deg, rgba(216, 180, 254, 0.18) 0%, rgba(167, 139, 250, 0.18) 100%);
-}
-.prompt-7 .system-prompt-title {
-    color: #8B5CF6;
-}
+        /* Soft Green */
+        .prompt-4 {
+            border-color: #6EE7B7;
+            background: linear-gradient(135deg, rgba(110, 231, 183, 0.18) 0%, rgba(52, 211, 153, 0.18) 100%);
+        }
+
+        .prompt-4 .system-prompt-title {
+            color: #10B981;
+        }
+
+        /* Soft Amber */
+        .prompt-5 {
+            border-color: #FDE68A;
+            background: linear-gradient(135deg, rgba(253, 230, 138, 0.18) 0%, rgba(251, 191, 36, 0.18) 100%);
+        }
+
+        .prompt-5 .system-prompt-title {
+            color: #F59E0B;
+        }
+
+        /* Soft Blue */
+        .prompt-6 {
+            border-color: #93C5FD;
+            background: linear-gradient(135deg, rgba(147, 197, 253, 0.18) 0%, rgba(96, 165, 250, 0.18) 100%);
+        }
+
+        .prompt-6 .system-prompt-title {
+            color: #3B82F6;
+        }
+
+        /* Soft Purple */
+        .prompt-7 {
+            border-color: #D8B4FE;
+            background: linear-gradient(135deg, rgba(216, 180, 254, 0.18) 0%, rgba(167, 139, 250, 0.18) 100%);
+        }
+
+        .prompt-7 .system-prompt-title {
+            color: #8B5CF6;
+        }
 
         .model-section {
             display: grid;
@@ -532,196 +499,332 @@
             .container {
                 padding: 0 10px;
             }
-            
+
             .card {
                 padding: 20px;
             }
-            
+
             h1 {
                 font-size: 2.2rem;
             }
-            
+
             .actions {
                 flex-direction: column;
                 gap: 15px;
             }
-            
+
             .actions .btn {
                 width: 100%;
             }
-            
+
             .prompt-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-            
+
             .prompt-header .btn {
                 align-self: flex-end;
             }
-            
+
             .system-prompt-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .model-section {
                 grid-template-columns: 1fr;
             }
         }
 
-            #load-defaults-btn {
-                background: linear-gradient(135deg, #81acf2, #5366ef);
-                color: white;
-                padding: 16px 34px;
-                font-size: 16px;
-                font-weight: 700;
-                border: none;
-                border-radius: 18px;
-                cursor: pointer;
-                box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
-                transition: all 0.25s ease;
-            }
-            
-            .save-set-section {
-                display: flex;
-                flex-direction: column;
-                gap: 18px;
-                margin-top: 25px;
-            }
+        #load-defaults-btn {
+            background: linear-gradient(135deg, #81acf2, #5366ef);
+            color: white;
+            padding: 16px 34px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+            transition: all 0.25s ease;
+        }
 
-            .save-set-section input {
-                padding: 16px;
-                font-size: 16px;
-                border-radius: 16px;
-                border: 2px solid #C4B5FD;
-                background: rgba(255, 255, 255, 0.9);
-            }
+        .save-set-section {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 25px;
+        }
 
-            .save-set-section input:focus {
-                border-color: var(--secondary-color);
-                box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
-            }
+        .save-set-section input {
+            padding: 16px;
+            font-size: 16px;
+            border-radius: 16px;
+            border: 2px solid #C4B5FD;
+            background: rgba(255, 255, 255, 0.9);
+        }
 
-            #toast-container {
-                position: fixed;
-                right: 30px;
-                bottom: 30px;
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                z-index: 9999;
-            }
+        .save-set-section input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+        }
 
-            .toast {
-                min-width: 460px;
-                max-width: 560px;
-                padding: 12px 16px;
-                border-radius: 14px;
-                font-size: 20px;
-                font-weight: 500;
-                color: #ffffff;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-                display: flex;
-                align-items: center;
+        #toast-container {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 9999;
+        }
+
+        .toast {
+            min-width: 460px;
+            max-width: 560px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 20px;
+            font-weight: 500;
+            color: #ffffff;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(120%);
+            animation: toast-in 0.25s ease-out forwards, toast-out 0.25s ease-in 4.5s forwards;
+        }
+
+        .toast-success {
+            background: var(--gradient-success);
+        }
+
+        .toast-danger {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+        }
+
+        @keyframes toast-in {
+            from {
                 opacity: 0;
                 transform: translateX(120%);
-                animation: toast-in 0.25s ease-out forwards, toast-out 0.25s ease-in 4.5s forwards;
             }
 
-            .toast-success {
-                background: var(--gradient-success);
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toast-out {
+            from {
+                opacity: 1;
+                transform: translateX(0);
             }
 
-            .toast-danger {
-                background: linear-gradient(135deg, #ef4444, #b91c1c);
+            to {
+                opacity: 0;
+                transform: translateX(120%);
             }
+        }
 
-@keyframes toast-in {
-    from {
-        opacity: 0;
-        transform: translateX(120%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+        }
 
-@keyframes toast-out {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(120%);
-    }
-}
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            position: relative;
+            font-family: "Courier New", monospace;
+        }
+
+        .close-icon {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            cursor: pointer;
+            font-size: 28px;
+            color: #444;
+        }
+
+        .output-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 18px;
+            /* Abstand zum Titel */
+            font-size: 18px;
+        }
+
+        .output-btn i {
+            color: #7c7c7c;
+        }
+
+        .output-btn:hover {
+            opacity: 1;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 99999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(6px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            padding: 28px;
+            border-radius: 18px;
+            width: 80%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+            position: relative;
+            font-family: "Courier New", monospace;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .close-icon {
+            position: absolute;
+            right: 18px;
+            top: 12px;
+            cursor: pointer;
+            font-size: 28px;
+            color: #333;
+            transition: 0.2s ease;
+        }
+
+        .close-icon:hover {
+            color: #000;
+            transform: scale(1.12);
+        }
+
+        .output-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px;
+            margin-left: 16px;
+            font-size: 20px;
+            transition: 0.2s ease;
+        }
+
+        .output-btn i {
+            color: #5f5f5f;
+        }
+
+        .output-btn:hover i {
+            color: #000;
+            transform: scale(1.15);
+        }
     </style>
 </head>
+
 <body>
     <div id="toast-container"></div>
     <div class="container">
         <h1>KI-Prompt Konfiguration</h1>
-        
-        
+
+
         <div class="card card-system">
             <h2>System Prompts</h2>
             <p class="card-description">Definieren Sie hier die 7 System-Prompts für die KI-Analyse:</p>
-            
+
             <div class="system-prompt-grid">
-<div class="system-prompt-card prompt-1">
-    <div class="system-prompt-title">
-        <span>Stellenanzeige Analyse</span>
 
-        <span class="material-icons info-icon">help_outline</span>
+                <div class="system-prompt-card prompt-1">
+                    <div class="system-prompt-title">
+                        <span>Stellenanzeige Analyse</span>
+                        <button id="output-btn-1" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-1" rows="5"></textarea>
+                </div>
 
-        <div class="info-tooltip">
-<pre>{
-  "erster_eindruck": [],
-  "schwaechen_und_risiken": [],
-  "chancen_und_potenziale": {
-    "staerken_die_genutzt_werden_koennen": [],
-    "kommunikationsansaetze": []
-  },
-  "handlungsempfehlungen": [
-    { "titel": "", "beschreibung": "" }
-  ]
-}</pre>
-        </div>
-    </div>
-
-    <textarea id="system-1" rows="5" placeholder="System-Prompt für die Stellenanzeigen-Analyse..."></textarea>
-</div>
-                
                 <div class="system-prompt-card prompt-2">
-                    <div class="system-prompt-title">Website Aussenwirkung</div>
-                    <textarea id="system-2" rows="5" placeholder="System-Prompt für die Website-Außenwirkungsanalyse..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Website Aussenwirkung</span>
+                        <button id="output-btn-2" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-2" rows="5"></textarea>
                 </div>
-                
+
                 <div class="system-prompt-card prompt-3">
-                    <div class="system-prompt-title">Jobboersen Verbreitung</div>
-                    <textarea id="system-3" rows="5" placeholder="System-Prompt für die Jobbörsen-Verbreitungsanalyse..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Jobboersen Verbreitung</span>
+                        <button id="output-btn-3" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-3" rows="5"></textarea>
                 </div>
-                
+
                 <div class="system-prompt-card prompt-4">
-                    <div class="system-prompt-title">Bewertungen Analyse</div>
-                    <textarea id="system-4" rows="5" placeholder="System-Prompt für die Bewertungsanalyse..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Bewertungen Analyse</span>
+                        <button id="output-btn-4" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-4" rows="5"></textarea>
                 </div>
-                
+
                 <div class="system-prompt-card prompt-5">
-                    <div class="system-prompt-title">Cost For Vacancy Berechnung</div>
-                    <textarea id="system-5" rows="5" placeholder="System-Prompt für die Cost-For-Vacancy-Berechnung..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Cost For Vacancy Berechnung</span>
+                        <button id="output-btn-5" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-5" rows="5"></textarea>
                 </div>
-                
+
                 <div class="system-prompt-card prompt-6">
-                    <div class="system-prompt-title">Marktposition Stelle Konkurrenz</div>
-                    <textarea id="system-6" rows="5" placeholder="System-Prompt für die Marktpositionsanalyse..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Marktposition Stelle Konkurrenz</span>
+                        <button id="output-btn-6" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-6" rows="5"></textarea>
                 </div>
-                
+
                 <div class="system-prompt-card prompt-7">
-                    <div class="system-prompt-title">Massnahmen Kurz Mittel Lang</div>
-                    <textarea id="system-7" rows="5" placeholder="System-Prompt für Maßnahmenempfehlungen..."></textarea>
+                    <div class="system-prompt-title">
+                        <span>Massnahmen Kurz Mittel Lang</span>
+                        <button id="output-btn-7" class="output-btn" type="button" title="Output-Format anzeigen">
+                            <i class="fa-solid fa-question-circle"></i>
+                        </button>
+                    </div>
+                    <textarea id="system-7" rows="5"></textarea>
                 </div>
 
             </div>
@@ -742,24 +845,24 @@
                 </button>
             </div>
         </div>
-        
+
         <div class="card card-user">
             <h2>User Prompts</h2>
             <p class="card-description">Definieren Sie hier die Benutzer-Prompts für die konkrete Analyse:</p>
-            
+
             <div id="user-prompts-container">
-               
+
             </div>
-            
+
             <div class="form-group">
                 <button id="add-user-prompt" class="btn">+ User Prompt hinzufügen</button>
             </div>
         </div>
-        
+
         <div class="card card-model">
             <h2>Konfiguration</h2>
             <p class="card-description">Wählen Sie das KI/LLM-Modell und definieren Sie den Ergebnisordner:</p>
-            
+
             <div class="model-section">
                 <div class="form-group">
                     <label for="model-select">Aktives LLM:</label>
@@ -772,382 +875,413 @@
                         <option value="llama">Llama</option>
                     </select>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="result-folder">gesendete / Result Ordnername:</label>
                     <input type="text" id="result-folder" placeholder="z.B. Analyse_Ergebnisse_2023">
                 </div>
             </div>
         </div>
-        
+
         <div class="actions">
             <button id="submit-btn" class="btn btn-success">An n8n Webhook senden</button>
         </div>
-        
-         <div id="alert" class="alert"></div>
+
+        <div id="alert" class="alert"></div>
 
         <div class="card card-result">
             <h2>Gesendete Prompts</h2>
             <p class="card-description">Die gesendeten Daten werden hier angezeigt:</p>
             <div id="result-box" class="result-box"></div>
         </div>
-        
+
     </div>
 
     <div class="actions" style="justify-content: center; margin-bottom: 20px;">
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Elemente
-    const userPromptsContainer = document.getElementById('user-prompts-container');
-    const addUserPromptBtn = document.getElementById('add-user-prompt');
-    const modelSelect = document.getElementById('model-select');
-    const resultFolderInput = document.getElementById('result-folder');
-    const submitBtn = document.getElementById('submit-btn');
-    const loadDefaultsBtn = document.getElementById('load-defaults-btn');
-    const alertDiv = document.getElementById('alert');
-    const resultBox = document.getElementById('result-box');
-    const savePromptSetBtn = document.getElementById('save-prompt-set-btn');
-    const toastContainer = document.getElementById('toast-container');
 
-    // Initialen User Prompt erstellen
-    createPrompt(userPromptsContainer, 'user', true);
-    
-    // Event-Listener
-    addUserPromptBtn.addEventListener('click', function() {
-        createPrompt(userPromptsContainer, 'user');
-    });
-    
-    submitBtn.addEventListener('click', submitForm);
-    loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
-    savePromptSetBtn.addEventListener('click', savePromptSet);
-    
-    const savePromptSetUrl = 'http://localhost:5678/webhook-test/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Elemente
+                const userPromptsContainer = document.getElementById('user-prompts-container');
+                const addUserPromptBtn = document.getElementById('add-user-prompt');
+                const modelSelect = document.getElementById('model-select');
+                const resultFolderInput = document.getElementById('result-folder');
+                const submitBtn = document.getElementById('submit-btn');
+                const loadDefaultsBtn = document.getElementById('load-defaults-btn');
+                const alertDiv = document.getElementById('alert');
+                const resultBox = document.getElementById('result-box');
+                const savePromptSetBtn = document.getElementById('save-prompt-set-btn');
+                const toastContainer = document.getElementById('toast-container');
+                const modal = document.getElementById('prompt-output-modal');
+                const modalOutput = document.getElementById('modal-output');
+                const modalClose = document.getElementById('modal-close');
+
+                const OUTPUT_FORMATS = {
+                    1: "UNBREAKABLE RULE VERY IMPORTANT:\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.\n- Keine Änderungen an der Struktur.\n\nOutput-Format\n\nGib das vollständige Ergebnis ausschließlich als JSON im folgenden Format zurück:\n{\n  \"erster_eindruck\": [],\n  \"schwaechen_und_risiken\": [],\n  \"chancen_und_potenziale\": {\n    \"staerken_die_genutzt_werden_koennen\": [],\n    \"kommunikationsansaetze\": []\n  },\n  \"handlungsempfehlungen\": [\n    {\n      \"titel\": \"\",\n      \"beschreibung\": \"\"\n    }\n  ]\n}",
+                    2: "Gib ausschließlich ein JSON im folgenden Format aus:\n\n{\n  \"website_wirkung\": {\n    \"erstes_erscheinungsbild\": [],\n    \"professionelle_wirkung\": [],\n    \"ton_und_sprache\": [],\n    \"modernitaet\": [],\n    \"zielgruppen_fit\": [],\n    \"emotion_und_wahrnehmung\": []\n  }\n}\n\nRegeln:\n- Gib nur das JSON aus.\n- Keine Änderungen an der Struktur.\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.",
+                    3: "Gib ausschließlich ein JSON im folgenden Format aus:\n\n{\n  \"veroeffentlichung_stellenanzeige\": {\n    \"webseiten_und_plattformen\": [],\n    \"anzahl\": \"\",\n    \"kosten_schaetzung_zahl\": \"\",\n    \"kosten_schaetzung_begründung\": \"\",\n    \"anzeigen_laufzeit_schaetzung\": \"\"\n  }\n}\n\nRegeln:\n- Gib nur das JSON aus.\n- Keine Änderungen an der Struktur.\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.",
+                    4: "Gib ausschließlich ein JSON im folgenden Format aus:\n\n{\n  \"externe_bewertungen\": {\n    \"gesamt_wertung\": \"\",\n    \"quellen\": [],\n    \"analyse\": {\n      \"staerken\": [],\n      \"schwaechen\": [],\n      \"gesamt_eindruck\": []\n    }\n  }\n}\n\nHinweise:\n- 'quellen' ist eine Liste. Jeder Eintrag hat folgendes Format:\n  {\n    \"portal\": \"\",\n    \"rating\": \"\",\n    \"anzahl_bewertungen\": \"\",\n    \"haupt_feedback\": \"\"\n  }\n\nRegeln:\n- Gib nur das JSON aus.\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.\n- Keine Änderungen an der Struktur.",
+                    5: "Gib ausschließlich folgendes JSON zurück:\n\n{\n  \"besetzungsdauer\": {\n    \"tage_min\": 60,\n    \"tage_max\": 120,\n    \"tage_avg\": 90,\n    \"begruendung\": \"kurze Begründung\"\n  },\n  \"cost_of_vacancy\": {\n    \"formel\": \"(60000 / 250) × 2 × 90\",\n    \"betrag_eur\": 43200,\n    \"annahmen\": {\n      \"jahresgehalt_eur\": 60000,\n      \"arbeitstage_pro_jahr\": 250,\n      \"stellenwert_faktor\": 2,\n      \"time_to_fill_tage\": 90\n    }\n  },\n  \"risiko_vakanz\": {\n    \"einschaetzung\": \"hoch\",\n    \"beschreibung\": \"kurze Beschreibung der Compliance-/Produktivitätsrisiken\"\n  },\n  \"empfohlenes_budget\": {\n    \"budget_min_eur\": 8000,\n    \"budget_max_eur\": 20000,\n    \"beschreibung\": \"kurze Begründung für die Budgetspanne\"\n  }\n}\n\nRegeln:\n- Gib nur das JSON aus.\n- Keine Änderungen an der Struktur.\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.",
+                    6: "AUSGABEFORMAT:\nGib exakt folgendes JSON zurück:\n{\"marktpositionierung\":{\"anzahl_aehnlicher_stellen_im_umkreis\":[],\"durchschnittliche_schaltungsdauer\":[],\"vergleich_konkurrenzbedingungen\":{\"gehaltsangaben\":[],\"arbeitsmodelle\":[],\"benefits\":[]},\"gesamtbewertung_positionierung\":[]}}\n\n**BEACHTE**:\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.\n- Keine Änderungen an der Struktur.",
+                    7: "AUSGABEFORMAT:\n\n{\n  \"massnahmen\": {\n    \"kurzfristig\": [],\n    \"mittelfristig\": [],\n    \"langfristig\": []\n  },\n  \"budget\": {\n    \"low\": [],\n    \"recommended\": [],\n    \"high\": []\n  }\n}\n\nBEACHTE:\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.\n- Keine Änderungen an der Struktur."
+                };
+                for (let i = 1; i <= 7; i++) {
+                    const btn = document.getElementById(`output-btn-${i}`);
+                    if (!btn) continue; // falls Button noch nicht existiert
+
+                    btn.addEventListener('click', () => {
+                        modalOutput.textContent = OUTPUT_FORMATS[i];
+                        modal.style.display = 'flex';
+                    });
+                }
+                modalClose.onclick = () => modal.style.display = 'none';
+                window.onclick = (e) => {
+                    if (e.target === modal) modal.style.display = 'none';
+                };
+                createPrompt(userPromptsContainer, 'user', true);
+
+                addUserPromptBtn.addEventListener('click', function () {
+                    createPrompt(userPromptsContainer, 'user');
+                });
+                submitBtn.addEventListener('click', submitForm);
+                loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
+                savePromptSetBtn.addEventListener('click', savePromptSet);
+
+                const savePromptSetUrl = 'http://localhost:5678/webhook/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
 
 
+                function showConfirmation(message) {
+                    return new Promise((resolve) => {
+                        const result = confirm(message);
+                        resolve(result);
+                    });
+                }
+                async function savePromptSet() {
+                    const setName = "default"
 
-    function showConfirmation(message) {
-    return new Promise((resolve) => {
-        const result = confirm(message);
-        resolve(result);
-    });
-}
-    async function savePromptSet() {
-        const setName = "default"
+                    const prompts = {
+                        "Stellenanzeige Analyse": document.getElementById('system-1').value.trim(),
+                        "Website Aussenwirkung": document.getElementById('system-2').value.trim(),
+                        "Jobboersen Verbreitung": document.getElementById('system-3').value.trim(),
+                        "Bewertungen Analyse": document.getElementById('system-4').value.trim(),
+                        "Cost For Vacancy Berechnung": document.getElementById('system-5').value.trim(),
+                        "Marktposition Stelle Konkurrenz": document.getElementById('system-6').value.trim(),
+                        "Massnahmen Kurz Mittel Lang": document.getElementById('system-7').value.trim()
+                    };
 
-        const prompts = {
-            "Stellenanzeige Analyse": document.getElementById('system-1').value.trim(),
-            "Website Aussenwirkung": document.getElementById('system-2').value.trim(),
-            "Jobboersen Verbreitung": document.getElementById('system-3').value.trim(),
-            "Bewertungen Analyse": document.getElementById('system-4').value.trim(),
-            "Cost For Vacancy Berechnung": document.getElementById('system-5').value.trim(),
-            "Marktposition Stelle Konkurrenz": document.getElementById('system-6').value.trim(),
-            "Massnahmen Kurz Mittel Lang": document.getElementById('system-7').value.trim()
-        };
-        
-        const confirm = await showConfirmation("sure ? data will be over writen")
-        if (!confirm){return}
+                    const confirm = await showConfirmation("sure ? data will be over writen")
+                    if (!confirm) { return }
 
-        const payload = {
-            set_name: setName,
-            prompts: prompts
-        };
+                    const payload = {
+                        set_name: setName,
+                        prompts: prompts
+                    };
 
-        try {
+                    try {
 
-            const response = await fetch(savePromptSetUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+                        const response = await fetch(savePromptSetUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
 
-            showAlert('Prompt-Set erfolgreich gespeichert!', 'success');
+                        showAlert('Prompt-Set erfolgreich gespeichert!', 'success');
                         showToast('Prompt-Set erfolgreich gespeichert!', 'success');
-        } catch (error) {
-            console.error('Fehler beim Speichern des Prompt-Sets:', error);
-            showToast('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
-            showAlert('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
-        }
-    }
+                    } catch (error) {
+                        console.error('Fehler beim Speichern des Prompt-Sets:', error);
+                        showToast('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
+                        showAlert('Prompt-Set konnte nicht gespeichert werden: ' + error.message, 'danger');
+                    }
+                }
 
-    // Function to load default prompts from webhook
-    async function loadDefaultPrompts() {
-        try {
-            const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'get_default_prompts'
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-    
-    
-            const defaultData = await response.json(); console.log(defaultData)
+                // Function to load default prompts from webhook
+                async function loadDefaultPrompts() {
+                    try {
+                        const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'get_default_prompts'
+                            })
+                        });
 
-            applyDefaultData(defaultData);
-            showAlert('Lade Standard-Prompts...', 'success');
-            showToast('Prompt-Set erfolgreich gespeichert!', 'success');
-            
-        } catch (error) {
-            console.error('Fehler beim Laden der Standard-Prompts:', error);
-            showAlert('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
-            showToast('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
-
-        }
-    }
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
 
 
-    function applyDefaultData(defaultData) {
-        // Neues Format:
-        // [ { "system prompts": { ... } } ]
-        const dataObj = Array.isArray(defaultData) ? defaultData[0] : defaultData;
+                        const defaultData = await response.json(); console.log(defaultData)
 
-        const sys = dataObj["system prompts"]; // neuer Key
+                        applyDefaultData(defaultData);
+                        showAlert('Lade Standard-Prompts...', 'success');
+                        showToast('Prompt-Set erfolgreich gespeichert!', 'success');
 
-        if (sys) {
-            const prompts = [
-                { id: 'system-1', key: 'Stellenanzeige Analyse' },
-                { id: 'system-2', key: 'Website Aussenwirkung' },
-                { id: 'system-3', key: 'Jobboersen Verbreitung' },
-                { id: 'system-4', key: 'Bewertungen Analyse' },
-                { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
-                { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
-                { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
-            ];
+                    } catch (error) {
+                        console.error('Fehler beim Laden der Standard-Prompts:', error);
+                        showAlert('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+                        showToast('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
 
-            prompts.forEach(p => {
-                if (sys[p.key]) {
-                    document.getElementById(p.id).value = sys[p.key];
+                    }
+                }
+
+
+                function applyDefaultData(defaultData) {
+                    // Neues Format:
+                    // [ { "system prompts": { ... } } ]
+                    const dataObj = Array.isArray(defaultData) ? defaultData[0] : defaultData;
+
+                    const sys = dataObj["system prompts"]; // neuer Key
+
+                    if (sys) {
+                        const prompts = [
+                            { id: 'system-1', key: 'Stellenanzeige Analyse' },
+                            { id: 'system-2', key: 'Website Aussenwirkung' },
+                            { id: 'system-3', key: 'Jobboersen Verbreitung' },
+                            { id: 'system-4', key: 'Bewertungen Analyse' },
+                            { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
+                            { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
+                            { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
+                        ];
+
+                        prompts.forEach(p => {
+                            if (sys[p.key]) {
+                                document.getElementById(p.id).value = sys[p.key];
+                            }
+                        });
+                    }
+
+                    // Optional: andere Defaults (falls später wieder kommen)
+                    if (dataObj.default_model) {
+                        document.getElementById('model-select').value = dataObj.default_model;
+                    }
+
+                    if (dataObj.default_result_folder) {
+                        document.getElementById('result-folder').value = dataObj.default_result_folder;
+                    }
+                }
+
+                function createPrompt(container, type, isFirst = false) {
+                    const promptCount = container.children.length + 1;
+                    const promptDiv = document.createElement('div');
+                    promptDiv.className = 'prompt-container';
+
+                    const promptHeader = document.createElement('div');
+                    promptHeader.className = 'prompt-header';
+
+                    const promptLabel = document.createElement('span');
+                    promptLabel.className = 'prompt-label';
+                    promptLabel.textContent = `User Prompt ${promptCount}`;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn btn-danger btn-small';
+                    removeBtn.textContent = 'Entfernen';
+                    removeBtn.addEventListener('click', function () {
+                        if (container.children.length > 1) {
+                            container.removeChild(promptDiv);
+                            updatePromptLabels(container, type);
+                        } else {
+                            showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+                            showToast('Mindestens 1 User-Prompt erforderlich', 'danger');
+                        }
+                    });
+
+                    // Ersten Prompt nicht entfernen können
+                    if (isFirst) {
+                        removeBtn.style.display = 'none';
+                    }
+
+                    promptHeader.appendChild(promptLabel);
+                    promptHeader.appendChild(removeBtn);
+
+                    const textarea = document.createElement('textarea');
+                    textarea.rows = 4;
+                    textarea.placeholder = 'Geben Sie hier den User-Prompt ein...';
+
+                    promptDiv.appendChild(promptHeader);
+                    promptDiv.appendChild(textarea);
+                    container.appendChild(promptDiv);
+                }
+
+                function updatePromptLabels(container, type) {
+                    const prompts = container.querySelectorAll('.prompt-container');
+                    prompts.forEach((prompt, index) => {
+                        const label = prompt.querySelector('.prompt-label');
+                        label.textContent = `User Prompt ${index + 1}`;
+
+                        // Nur den ersten Prompt nicht entfernen können
+                        const removeBtn = prompt.querySelector('.btn-danger');
+                        if (index === 0) {
+                            removeBtn.style.display = 'none';
+                        } else {
+                            removeBtn.style.display = 'inline-block';
+                        }
+                    });
+                }
+
+                function getSystemPromptValues() {
+                    const systemPrompts = {};
+
+                    // System Prompts sammeln
+                    const prompts = [
+                        { id: 'system-1', key: 'Stellenanzeige Analyse' },
+                        { id: 'system-2', key: 'Website Aussenwirkung' },
+                        { id: 'system-3', key: 'Jobboersen Verbreitung' },
+                        { id: 'system-4', key: 'Bewertungen Analyse' },
+                        { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
+                        { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
+                        { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
+                    ];
+
+                    prompts.forEach(prompt => {
+                        const value = document.getElementById(prompt.id).value.trim();
+                        if (value) {
+                            systemPrompts[prompt.key] = value;
+                        }
+                    });
+
+                    return systemPrompts;
+                }
+
+                function getUserPromptValues() {
+                    const textareas = userPromptsContainer.querySelectorAll('textarea');
+                    const values = [];
+
+                    textareas.forEach(textarea => {
+                        if (textarea.value.trim() !== '') {
+                            values.push(textarea.value.trim());
+                        }
+                    });
+
+                    return values;
+                }
+
+                function validateForm() {
+                    const systemPrompts = getSystemPromptValues();
+                    const userPrompts = getUserPromptValues();
+                    const selectedModel = modelSelect.value;
+                    const resultFolder = resultFolderInput.value.trim();
+
+                    if (Object.keys(systemPrompts).length === 0) {
+                        showAlert('Mindestens 1 System-Prompt erforderlich', 'danger');
+                        showToast('Mindestens 1 System-Prompt erforderlich', 'danger');
+                        return false;
+                    }
+
+                    if (userPrompts.length === 0) {
+                        showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
+                        showToast('Mindestens 1  User-Prompt  erforderlich', 'danger');
+                        return false;
+                    }
+
+                    if (!selectedModel) {
+                        showAlert('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
+                        showToast();
+                        return false;
+                    }
+
+                    if (!resultFolder) {
+                        showAlert('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger');
+                        showToast('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger')
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                function submitForm() {
+                    if (!validateForm()) {
+                        return;
+                    }
+
+                    const systemPrompts = getSystemPromptValues();
+                    const userPrompts = getUserPromptValues();
+                    const selectedModel = modelSelect.value;
+                    const resultFolder = resultFolderInput.value.trim();
+
+                    const payload = {
+                        system_prompts: systemPrompts,
+                        user_prompts: userPrompts,
+                        selected_model: selectedModel,
+                        result_folder: resultFolder
+                    };
+
+                    // Ergebnis anzeigen
+                    showResult(payload);
+
+                    // Webhook-URL (hier Platzhalter - Sie können diese ersetzen) RAAD
+                    const webhookUrl = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
+
+
+                    // POST-Request an den Webhook senden
+                    fetch(webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                showAlert('Daten erfolgreich an n8n Webhook gesendet!', 'success');
+                                showToast('Daten erfolgreich an n8n Webhook gesendet!', 'success');
+                            } else {
+                                throw new Error('Fehler beim Senden der Daten');
+                                showToast('Fehler beim Senden der Daten');
+                            }
+                        })
+                        .catch(error => {
+                            showAlert('Fehler beim Senden: ' + error.message, 'danger');
+                        });
+                }
+
+                function showResult(payload) {
+                    resultBox.textContent = JSON.stringify(payload, null, 2);
+                    resultBox.style.display = 'block';
+                }
+
+                function showAlert(message, type) {
+                    alertDiv.textContent = message;
+                    alertDiv.className = `alert alert-${type}`;
+                    alertDiv.style.display = 'block';
+
+                    setTimeout(hideAlert, 5000);
+                }
+
+                function showToast(message, type = 'success') {
+                    const toast = document.createElement('div');
+                    toast.className = `toast toast-${type}`;
+                    toast.textContent = message;
+
+                    toastContainer.appendChild(toast);
+
+                    // nach Ablauf der Animation entfernen (ca. 5s)
+                    setTimeout(() => {
+                        toast.remove();
+                    }, 5000);
+                }
+
+                function hideAlert() {
+                    alertDiv.style.display = 'none';
                 }
             });
-        }
 
-        // Optional: andere Defaults (falls später wieder kommen)
-        if (dataObj.default_model) {
-            document.getElementById('model-select').value = dataObj.default_model;
-        }
+        </script>
 
-        if (dataObj.default_result_folder) {
-            document.getElementById('result-folder').value = dataObj.default_result_folder;
-        }
-    }
 
-    function createPrompt(container, type, isFirst = false) {
-        const promptCount = container.children.length + 1;
-        const promptDiv = document.createElement('div');
-        promptDiv.className = 'prompt-container';
-        
-        const promptHeader = document.createElement('div');
-        promptHeader.className = 'prompt-header';
-        
-        const promptLabel = document.createElement('span');
-        promptLabel.className = 'prompt-label';
-        promptLabel.textContent = `User Prompt ${promptCount}`;
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'btn btn-danger btn-small';
-        removeBtn.textContent = 'Entfernen';
-        removeBtn.addEventListener('click', function() {
-            if (container.children.length > 1) {
-                container.removeChild(promptDiv);
-                updatePromptLabels(container, type);
-            } else {
-                showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
-                showToast('Mindestens 1 User-Prompt erforderlich', 'danger');
-            }
-        });
-        
-        // Ersten Prompt nicht entfernen können
-        if (isFirst) {
-            removeBtn.style.display = 'none';
-        }
-        
-        promptHeader.appendChild(promptLabel);
-        promptHeader.appendChild(removeBtn);
-        
-        const textarea = document.createElement('textarea');
-        textarea.rows = 4;
-        textarea.placeholder = 'Geben Sie hier den User-Prompt ein...';
-        
-        promptDiv.appendChild(promptHeader);
-        promptDiv.appendChild(textarea);
-        container.appendChild(promptDiv);
-    }
-    
-    function updatePromptLabels(container, type) {
-        const prompts = container.querySelectorAll('.prompt-container');
-        prompts.forEach((prompt, index) => {
-            const label = prompt.querySelector('.prompt-label');
-            label.textContent = `User Prompt ${index + 1}`;
-            
-            // Nur den ersten Prompt nicht entfernen können
-            const removeBtn = prompt.querySelector('.btn-danger');
-            if (index === 0) {
-                removeBtn.style.display = 'none';
-            } else {
-                removeBtn.style.display = 'inline-block';
-            }
-        });
-    }
-    
-    function getSystemPromptValues() {
-        const systemPrompts = {};
-        
-        // System Prompts sammeln
-        const prompts = [
-            { id: 'system-1', key: 'Stellenanzeige Analyse' },
-            { id: 'system-2', key: 'Website Aussenwirkung' },
-            { id: 'system-3', key: 'Jobboersen Verbreitung' },
-            { id: 'system-4', key: 'Bewertungen Analyse' },
-            { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
-            { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
-            { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
-        ];
-        
-        prompts.forEach(prompt => {
-            const value = document.getElementById(prompt.id).value.trim();
-            if (value) {
-                systemPrompts[prompt.key] = value;
-            }
-        });
-        
-        return systemPrompts;
-    }
-    
-    function getUserPromptValues() {
-        const textareas = userPromptsContainer.querySelectorAll('textarea');
-        const values = [];
-        
-        textareas.forEach(textarea => {
-            if (textarea.value.trim() !== '') {
-                values.push(textarea.value.trim());
-            }
-        });
-        
-        return values;
-    }
-    
-    function validateForm() {
-        const systemPrompts = getSystemPromptValues();
-        const userPrompts = getUserPromptValues();
-        const selectedModel = modelSelect.value;
-        const resultFolder = resultFolderInput.value.trim();
-        
-        if (Object.keys(systemPrompts).length === 0) {
-            showAlert('Mindestens 1 System-Prompt erforderlich', 'danger');
-            showToast('Mindestens 1 System-Prompt erforderlich', 'danger');
-            return false;
-        }
-        
-        if (userPrompts.length === 0) {
-            showAlert('Mindestens 1 User-Prompt erforderlich', 'danger');
-            showToast('Mindestens 1  User-Prompt  erforderlich', 'danger');
-            return false;
-        }
-        
-        if (!selectedModel) {
-            showAlert('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
-            showToast();
-            return false;
-        }
-        
-        if (!resultFolder) {
-            showAlert('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger');
-            showToast('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger')
-            return false;
-        }
-        
-        return true;
-    }
-    
-    function submitForm() {
-        if (!validateForm()) {
-            return;
-        }
-        
-        const systemPrompts = getSystemPromptValues();
-        const userPrompts = getUserPromptValues();
-        const selectedModel = modelSelect.value;
-        const resultFolder = resultFolderInput.value.trim();
-        
-        const payload = {
-            system_prompts: systemPrompts,
-            user_prompts: userPrompts,
-            selected_model: selectedModel,
-            result_folder: resultFolder
-        };
-        
-        // Ergebnis anzeigen
-        showResult(payload);
-        
-        // Webhook-URL (hier Platzhalter - Sie können diese ersetzen) RAAD
-        const webhookUrl = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
-    
-        
-        // POST-Request an den Webhook senden
-        fetch(webhookUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        })
-        .then(response => {
-            if (response.ok) {
-                showAlert('Daten erfolgreich an n8n Webhook gesendet!', 'success');
-                showToast('Daten erfolgreich an n8n Webhook gesendet!', 'success');
-            } else {
-                throw new Error('Fehler beim Senden der Daten');
-                showToast('Fehler beim Senden der Daten');
-            }
-        })
-        .catch(error => {
-            showAlert('Fehler beim Senden: ' + error.message, 'danger');
-        });
-    }
-    
-    function showResult(payload) {
-        resultBox.textContent = JSON.stringify(payload, null, 2);
-        resultBox.style.display = 'block';
-    }
-    
-    function showAlert(message, type) {
-        alertDiv.textContent = message;
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.style.display = 'block';
-        
-        setTimeout(hideAlert, 5000);
-    }
-
-    function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
-    toast.textContent = message;
-
-    toastContainer.appendChild(toast);
-
-    // nach Ablauf der Animation entfernen (ca. 5s)
-    setTimeout(() => {
-        toast.remove();
-    }, 5000);
-}
-    
-    function hideAlert() {
-        alertDiv.style.display = 'none';
-    }
-});
-
-</script>
+<div id="prompt-output-modal" class="modal">
+    <div class="modal-content">
+        <i id="modal-close" class="fa-solid fa-circle-xmark close-icon"></i>
+        <pre id="modal-output"></pre>
+    </div>
+</div>
 </body>
+
 </html>
