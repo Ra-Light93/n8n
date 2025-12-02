@@ -916,6 +916,15 @@
                 const modal = document.getElementById('prompt-output-modal');
                 const modalOutput = document.getElementById('modal-output');
                 const modalClose = document.getElementById('modal-close');
+                const SYSTEM_PROMPT_CONFIG = [
+                    { id: 'system-1', key: 'Stellenanzeige Analyse', idx: 1 },
+                    { id: 'system-2', key: 'Website Aussenwirkung', idx: 2 },
+                    { id: 'system-3', key: 'Jobboersen Verbreitung', idx: 3 },
+                    { id: 'system-4', key: 'Bewertungen Analyse', idx: 4 },
+                    { id: 'system-5', key: 'Cost For Vacancy Berechnung', idx: 5 },
+                    { id: 'system-6', key: 'Marktposition Stelle Konkurrenz', idx: 6 },
+                    { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang', idx: 7 }
+                ];
 
                 const OUTPUT_FORMATS = {
                     1: "UNBREAKABLE RULE VERY IMPORTANT:\n- Felder mit \"\" müssen als einzelner Textstring befüllt werden.\n- Felder mit [] müssen als Array von einzelnen Text-Elementen befüllt werden.\n- Keine Änderungen an der Struktur.\n\nOutput-Format\n\nGib das vollständige Ergebnis ausschließlich als JSON im folgenden Format zurück:\n{\n  \"erster_eindruck\": [],\n  \"schwaechen_und_risiken\": [],\n  \"chancen_und_potenziale\": {\n    \"staerken_die_genutzt_werden_koennen\": [],\n    \"kommunikationsansaetze\": []\n  },\n  \"handlungsempfehlungen\": [\n    {\n      \"titel\": \"\",\n      \"beschreibung\": \"\"\n    }\n  ]\n}",
@@ -1126,25 +1135,19 @@
                     });
                 }
 
-                function getSystemPromptValues() {
+                function getSystemPromptValues(withOutputFormat = false) {
                     const systemPrompts = {};
 
-                    // System Prompts sammeln
-                    const prompts = [
-                        { id: 'system-1', key: 'Stellenanzeige Analyse' },
-                        { id: 'system-2', key: 'Website Aussenwirkung' },
-                        { id: 'system-3', key: 'Jobboersen Verbreitung' },
-                        { id: 'system-4', key: 'Bewertungen Analyse' },
-                        { id: 'system-5', key: 'Cost For Vacancy Berechnung' },
-                        { id: 'system-6', key: 'Marktposition Stelle Konkurrenz' },
-                        { id: 'system-7', key: 'Massnahmen Kurz Mittel Lang' }
-                    ];
+                    SYSTEM_PROMPT_CONFIG.forEach(cfg => {
+                        const el = document.getElementById(cfg.id);
+                        if (!el) return;
 
-                    prompts.forEach(prompt => {
-                        const value = document.getElementById(prompt.id).value.trim();
-                        if (value) {
-                            systemPrompts[prompt.key] = value;
-                        }
+                        const base = el.value.trim();
+                        if (!base) return;
+
+                        systemPrompts[cfg.key] = withOutputFormat
+                            ? base + "\n\n" + OUTPUT_FORMATS[cfg.idx]
+                            : base;
                     });
 
                     return systemPrompts;
@@ -1201,7 +1204,7 @@
                         return;
                     }
 
-                    const systemPrompts = getSystemPromptValues();
+                    const systemPrompts = getSystemPromptValues(true);
                     const userPrompts = getUserPromptValues();
                     const selectedModel = modelSelect.value;
                     const resultFolder = resultFolderInput.value.trim();
