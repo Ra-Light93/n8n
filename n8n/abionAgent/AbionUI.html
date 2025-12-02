@@ -536,7 +536,7 @@
             }
         }
 
-        #load-defaults-btn {
+        #load-latest-btn {
             background: linear-gradient(135deg, #81acf2, #5366ef);
             color: white;
             padding: 16px 34px;
@@ -742,6 +742,17 @@
             color: #000;
             transform: scale(1.15);
         }
+
+        .btn i {
+            margin-right: 6px;
+        }
+
+        #load-default-json-id {
+            background: linear-gradient(135deg, #201f1f, #9b0000); /* deine Farbe */
+            color: white;
+            box-shadow: 0 6px 12px rgba(234, 88, 12, 0.35);
+        }
+
     </style>
 </head>
 
@@ -836,13 +847,18 @@
 
             <div class="save-set-section">
 
-                <button id="save-prompt-set-btn" class="btn btn-success">
-                    💾 Save Prompt Set
-                </button>
+            <button id="save-prompt-set-btn" class="btn btn-success">
+                <i class="fa-solid fa-floppy-disk"></i> Save Prompt Set
+            </button>
+            
+            <button id="load-latest-btn" class="btn btn-info">
+                <i class="fa-solid fa-cloud-arrow-down"></i> Load Last Saved Set
+            </button>
 
-                <button id="load-defaults-btn" class="btn btn-info">
-                    📥 Standard-Prompts laden
-                </button>
+            <button id="load-default-json-id" class="btn btn-info">
+                <i class="fa-solid fa-box-archive"></i> Load Default JSON
+            </button>
+
             </div>
         </div>
 
@@ -908,7 +924,8 @@
                 const modelSelect = document.getElementById('model-select');
                 const resultFolderInput = document.getElementById('result-folder');
                 const submitBtn = document.getElementById('submit-btn');
-                const loadDefaultsBtn = document.getElementById('load-defaults-btn');
+                const loadSetButton = document.getElementById('load-latest-btn');
+                const loadDefaultsBtn = document.getElementById('load-default-json-id');
                 const alertDiv = document.getElementById('alert');
                 const resultBox = document.getElementById('result-box');
                 const savePromptSetBtn = document.getElementById('save-prompt-set-btn');
@@ -954,6 +971,7 @@
                     createPrompt(userPromptsContainer, 'user');
                 });
                 submitBtn.addEventListener('click', submitForm);
+                loadSetButton.addEventListener('click', loadSetPrompts);
                 loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
                 savePromptSetBtn.addEventListener('click', savePromptSet);
 
@@ -1008,8 +1026,39 @@
                     }
                 }
 
+                async function loadDefaultPrompts(){
+                    try {
+                        const response = await fetch('http://localhost:5678/webhook/f137bec0-cec4-48cf-805e-bbcf8f3e261e', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'get_default_prompts'
+                            })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+
+                        const defaultData = await response.json(); console.log(defaultData)
+
+                        applyDefaultData(defaultData);
+                        showAlert('Lade Standard-Prompts...', 'success');
+                        showToast('Prompt-Set erfolgreich gespeichert!', 'success');
+
+                    } catch (error) {
+                        console.error('Fehler beim Laden der Standard-Prompts:', error);
+                        showAlert('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+                        showToast('Standard-Prompts konnten nicht geladen werden: ' + error.message, 'danger');
+
+                    }
+                }
+
                 // Function to load default prompts from webhook
-                async function loadDefaultPrompts() {
+                async function loadSetPrompts() {
                     try {
                         const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
                             method: 'POST',
@@ -1192,7 +1241,7 @@
 
                     if (!resultFolder) {
                         showAlert('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger');
-                        showToast('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger')
+                        showToast('Bitte geben Sie einen Ergebnis-Ordnernamen ein', 'danger')
                         return false;
                     }
 
