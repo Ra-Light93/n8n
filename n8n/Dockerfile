@@ -7,5 +7,6 @@ RUN apk update && apk add --no-cache \
     py3-pip \
     ffmpeg \
     py3-pillow \
-    yt-dlp
+    yt-dlp \
+    wkhtmltopdf
 USER node
