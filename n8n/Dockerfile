@@ -8,5 +8,5 @@ RUN apk update && apk add --no-cache \
     ffmpeg \
     py3-pillow \
     yt-dlp \
-    wkhtmltopdf
+    chromium 
 USER node

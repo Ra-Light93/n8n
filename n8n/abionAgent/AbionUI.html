@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KI-Prompt Konfiguration</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="abion-icon.png">
     <style>
         :root {
             --primary-color: #0D9488;
@@ -599,6 +600,31 @@
             background: var(--gradient-success);
         }
 
+        .toast-success {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-left-color: #065F46;
+        }
+
+        .toast-info {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            border-left-color: #1E40AF;
+        }
+
+        .toast-warning {
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            border-left-color: #B45309;
+        }
+
+        .toast-danger {
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            border-left-color: #B91C1C;
+        }
+
+        .toast-process {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            border-left-color: #5B21B6;
+        }
+
         .toast-danger {
             background: linear-gradient(135deg, #ef4444, #b91c1c);
         }
@@ -747,10 +773,22 @@
             margin-right: 6px;
         }
 
-        #load-default-json-id {
-            background: linear-gradient(135deg, #201f1f, #9b0000); /* deine Farbe */
+#load-default-json-id {
+    background: linear-gradient(135deg, #4B0082, #2A003F);
+    color: white;
+    box-shadow: 0 6px 12px rgba(75, 0, 130, 0.35);
+}
+
+        #save-prompt-set-btn {
+            background: linear-gradient(135deg, #006A4E, #004D40);
             color: white;
-            box-shadow: 0 6px 12px rgba(234, 88, 12, 0.35);
+            box-shadow: 0 6px 12px rgba(0, 106, 78, 0.35);
+        }
+
+        #load-latest-btn {
+            background: linear-gradient(135deg, #1A237E, #0D133A);
+            color: white;
+            box-shadow: 0 6px 12px rgba(26, 35, 126, 0.35);
         }
 
     </style>
@@ -880,6 +918,12 @@
             <p class="card-description">Wählen Sie das KI/LLM-Modell und definieren Sie den Ergebnisordner:</p>
 
             <div class="model-section">
+
+                <div class="form-group">
+                    <label for="result-folder">gesendete / Result Ordnername:</label>
+                    <input type="text" id="result-folder" placeholder="z.B. Analyse_Ergebnisse_2023">
+                </div>
+                
                 <div class="form-group">
                     <label for="model-select">Aktives LLM:</label>
                     <select id="model-select">
@@ -892,15 +936,15 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="result-folder">gesendete / Result Ordnername:</label>
-                    <input type="text" id="result-folder" placeholder="z.B. Analyse_Ergebnisse_2023">
+                 <div class="form-group">
+                    <label for="result-folder">Result Webseite Name</label>
+                    <input type="text" id="result-webseite" placeholder="z.B.ÖRAG">
                 </div>
             </div>
         </div>
 
         <div class="actions">
-            <button id="submit-btn" class="btn btn-success">An n8n Webhook senden</button>
+            <button id="submit-btn" class="btn btn-success">An Agent Senden</button>
         </div>
 
         <div id="alert" class="alert"></div>
@@ -923,6 +967,7 @@
                 const addUserPromptBtn = document.getElementById('add-user-prompt');
                 const modelSelect = document.getElementById('model-select');
                 const resultFolderInput = document.getElementById('result-folder');
+                const webseiteWebsitName = document.getElementById('result-webseite');
                 const submitBtn = document.getElementById('submit-btn');
                 const loadSetButton = document.getElementById('load-latest-btn');
                 const loadDefaultsBtn = document.getElementById('load-default-json-id');
@@ -933,6 +978,12 @@
                 const modal = document.getElementById('prompt-output-modal');
                 const modalOutput = document.getElementById('modal-output');
                 const modalClose = document.getElementById('modal-close');
+
+                const savePromptSetUrl = 'http://localhost:5678/webhook/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
+                const AbionUltraLink = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
+                const loadDefaultPromptsLink = "http://localhost:5678/webhook/f137bec0-cec4-48cf-805e-bbcf8f3e261e";
+                const loadSetPromptsLink = "http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde";
+
                 const SYSTEM_PROMPT_CONFIG = [
                     { id: 'system-1', key: 'Stellenanzeige Analyse', idx: 1 },
                     { id: 'system-2', key: 'Website Aussenwirkung', idx: 2 },
@@ -975,8 +1026,7 @@
                 loadDefaultsBtn.addEventListener('click', loadDefaultPrompts);
                 savePromptSetBtn.addEventListener('click', savePromptSet);
 
-                const savePromptSetUrl = 'http://localhost:5678/webhook/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
-
+                // const savePromptSetUrl = 'http://localhost:5678/webhook/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
 
                 function showConfirmation(message) {
                     return new Promise((resolve) => {
@@ -1028,7 +1078,7 @@
 
                 async function loadDefaultPrompts(){
                     try {
-                        const response = await fetch('http://localhost:5678/webhook/f137bec0-cec4-48cf-805e-bbcf8f3e261e', {
+                        const response = await fetch(loadDefaultPromptsLink, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1057,10 +1107,11 @@
                     }
                 }
 
+
                 // Function to load default prompts from webhook
                 async function loadSetPrompts() {
                     try {
-                        const response = await fetch('http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde', {
+                        const response = await fetch(loadSetPromptsLink, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1220,6 +1271,7 @@
                     const userPrompts = getUserPromptValues();
                     const selectedModel = modelSelect.value;
                     const resultFolder = resultFolderInput.value.trim();
+                    const websiteTitle = webseiteWebsitName.value.trim();
 
                     if (Object.keys(systemPrompts).length === 0) {
                         showAlert('Mindestens 1 System-Prompt erforderlich', 'danger');
@@ -1235,7 +1287,7 @@
 
                     if (!selectedModel) {
                         showAlert('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
-                        showToast();
+                        showToast('Bitte wählen Sie ein KI/LLM-Modell aus', 'danger');
                         return false;
                     }
 
@@ -1245,35 +1297,42 @@
                         return false;
                     }
 
+                    if (!websiteTitle) {
+                        showAlert('Bitte geben Sie einen Name der Webseite ein', 'danger');
+                        showToast('Bitte geben Sie einen Name der Webseite ein', 'danger')
+                        return false;
+                    }
+
                     return true;
                 }
 
                 function submitForm() {
+
                     if (!validateForm()) {
                         return;
                     }
 
                     const systemPrompts = getSystemPromptValues(true);
-                    const userPrompts = getUserPromptValues();
+                    const userPrompts   = getUserPromptValues();
                     const selectedModel = modelSelect.value;
-                    const resultFolder = resultFolderInput.value.trim();
+                    const resultFolder  = resultFolderInput.value.trim();
+                    const wibsiteName   = webseiteWebsitName.value.trim();
 
                     const payload = {
                         system_prompts: systemPrompts,
                         user_prompts: userPrompts,
                         selected_model: selectedModel,
-                        result_folder: resultFolder
+                        result_folder: resultFolder,
+                        wibsiteName : wibsiteName
                     };
 
                     // Ergebnis anzeigen
                     showResult(payload);
-
-                    // Webhook-URL (hier Platzhalter - Sie können diese ersetzen) RAAD
-                    const webhookUrl = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
-
+                    showAlert('(versuchen) Daten ist an Agent gesendet.....', 'success');
+                    showToast('(versuchen) Daten ist an Agent gesendet.....', 'process');
 
                     // POST-Request an den Webhook senden
-                    fetch(webhookUrl, {
+                    fetch(AbionUltraLink, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1282,11 +1341,12 @@
                     })
                         .then(response => {
                             if (response.ok) {
-                                showAlert('Daten erfolgreich an n8n Webhook gesendet!', 'success');
-                                showToast('Daten erfolgreich an n8n Webhook gesendet!', 'success');
+                                showAlert('Agent bearbeitung ist fertig, üperprufe Ergebiss ...!', 'success');
+                                showToast('Agent bearbeitung ist fertig, üperprufe Ergebiss ...!', 'success');
                             } else {
                                 throw new Error('Fehler beim Senden der Daten');
                                 showToast('Fehler beim Senden der Daten');
+                                showAlert('Agent bearbeitung ist fertig, üperprufe Ergebiss ...!');
                             }
                         })
                         .catch(error => {
@@ -1334,6 +1394,7 @@
         <pre id="modal-output"></pre>
     </div>
 </div>
+
 </body>
 
 </html>

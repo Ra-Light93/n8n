@@ -1,0 +1,190 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{tcolorbox}
+\usepackage{dashrule}
+\tcbuselibrary{skins, breakable}
+
+% Define colors matching the website
+\definecolor{primary}{HTML}{2C3E50}
+\definecolor{accent}{HTML}{8E44AD}
+\definecolor{blockbg}{HTML}{ECF0F1}
+\definecolor{blockborder}{HTML}{9B59B6}
+\definecolor{exampleborder}{HTML}{BDC3C7}
+\definecolor{examplebg}{HTML}{FDFEFE}
+\definecolor{captionbg}{HTML}{000000}
+
+% Page style
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
+
+% Title formatting
+\titleformat{\section}
+{\normalfont\Large\bfseries\color{primary}}
+{}{0em}
+{}
+\titlespacing*{\section}{0pt}{20pt}{10pt}
+
+\titleformat{\subsection}
+{\normalfont\large\bfseries\color{primary}}
+{}{0em}
+{}
+\titlespacing*{\subsection}{0pt}{15pt}{5pt}
+
+% Custom content block environment
+\newenvironment{contentblock}
+{\begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=blockbg,
+    colframe=blockborder,
+    boxrule=0pt,
+    leftrule=5pt,
+    arc=5pt,
+    outer arc=5pt,
+    pad at break*=10pt,
+    fontupper=\normalfont,
+    before skip=10pt,
+    after skip=10pt
+]}
+{\end{tcolorbox}}
+
+% Visual example environment with dashed border using dashrule
+\newenvironment{visualexample}
+{\par\noindent
+ \begin{tcolorbox}[
+    enhanced,
+    breakable,
+    colback=examplebg,
+    colframe=exampleborder,
+    boxrule=1pt,
+    arc=5pt,
+    outer arc=5pt,
+    pad at break*=10pt,
+    fontupper=\normalfont,
+    before skip=10pt,
+    after skip=10pt,
+    center title,
+    frame style={draw=exampleborder, dash pattern=on 4pt off 4pt}
+ ]
+ \centering}
+{\end{tcolorbox}}
+
+\begin{document}
+
+% Title section
+\begin{center}
+    \vspace*{1cm}
+    {\Huge\bfseries\color{primary} Content Strategy: The ``Scholar Clips'' Account}
+    
+    \vspace{0.3cm}
+    \rule{0.8\textwidth}{2pt}
+    \vspace{1cm}
+\end{center}
+
+\section*{Brand Identity}
+\begin{contentblock}
+    \textbf{\color{accent}Feel:} Professional, respectful, and clean. The focus is on the knowledge being shared.
+    
+    \textbf{\color{accent}Colors:} Use a consistent color palette (e.g., deep purple, gold, white, and black) for all text overlays and branding.
+    
+    \textbf{\color{accent}Fonts:} Choose a clear, modern, and easy-to-read font for all captions and headlines.
+\end{contentblock}
+
+\section*{Reels \& Short-Form Videos}
+\begin{contentblock}
+    \subsection*{Visual Structure of a Reel}
+    This is the core of your content. Every video should look consistent and professional.
+    
+    \begin{visualexample}
+        \textbf{[HEADLINE: The Topic of the Clip]}
+        
+        \vspace{0.5cm}
+        [Video of the scholar speaking fills this area]
+        
+        \vspace{1cm}
+        
+        \colorbox{captionbg}{\textcolor{white}{[Dynamic, easy-to-read subtitles appear here as the scholar speaks]}}
+        
+        \vspace{0.3cm}
+        \small Subtle watermark/logo in one corner
+    \end{visualexample}
+    
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{\color{accent}Headline:} A compelling title or question at the top to grab attention (e.g., ``The Power of Forgiveness'').
+        \item \textbf{\color{accent}Video:} The clip of the scholar speaking. Ensure audio is clear.
+        \item \textbf{\color{accent}Subtitles:} Dynamic, word-by-word captions are highly engaging. They must be 100\% accurate.
+        \item \textbf{\color{accent}Branding:} A small, non-intrusive logo or your @handle.
+        \item \textbf{\color{accent}Length:} 30-90 seconds. Focus on one single, powerful point per video.
+    \end{itemize}
+\end{contentblock}
+
+\section*{Static Feed Posts (Images \& Carousels)}
+\begin{contentblock}
+    \subsection*{1. Powerful Quote Cards}
+    A shareable image that reinforces a key message from a video.
+    
+    \begin{visualexample}
+        \textit{\large ``The strongest among you is the one who controls his anger.''}
+        
+        \vspace{0.3cm}
+        --- Sheikh [Name]
+    \end{visualexample}
+\end{contentblock}
+
+\begin{contentblock}
+    \subsection*{2. ``Key Takeaways'' Carousels}
+    Summarize a video clip in a digestible format to encourage saves.
+    
+    \begin{visualexample}
+        \textbf{Slide 1:} How to Attain Peace of Mind
+        
+        \textbf{Slide 2:} 1. The Remembrance of Allah
+        
+        \textbf{Slide 3:} 2. Trusting in the Divine Decree
+        
+        \textbf{Slide 4:} 3. Helping Others
+        
+        \textbf{Slide 5:} Save this post for later!
+    \end{visualexample}
+\end{contentblock}
+
+\begin{contentblock}
+    \subsection*{3. Scholar Profiles}
+    Builds trust by introducing the scholars you feature.
+    
+    \begin{visualexample}
+        [Respectful Photo of Scholar]
+        
+        \vspace{0.3cm}
+        \textbf{Sheikh [Name]}
+        
+        \small Brief bio: Area of expertise, education, etc.
+    \end{visualexample}
+\end{contentblock}
+
+\section*{Instagram Story Highlights Strategy}
+Highlights are crucial for organizing your content and helping new followers understand your page. Each highlight should have a custom-designed cover that matches your brand colors.
+
+\begin{contentblock}
+    \subsection*{Highlight Categories}
+    \begin{itemize}[leftmargin=*]
+        \item \textbf{\color{accent}About Us:} A few slides explaining the mission of your page.
+        \item \textbf{\color{accent}Scholars:} Create a dedicated highlight for each main scholar you feature. Add their profile post and all clips featuring them to their highlight.
+        \item \textbf{\color{accent}Topics (e.g., ``Salah'', ``Family'', ``Patience''):} Organize your clips by theme. When you post a clip about patience, add it to the ``Patience'' highlight. This creates a valuable, organized library for your followers.
+        \item \textbf{\color{accent}Q\&A:} If you run question-and-answer sessions in your stories, save the answers here.
+        \item \textbf{\color{accent}Resources:} Provide links to the full lectures, recommended books, or websites for further learning.
+    \end{itemize}
+\end{contentblock}
+
+\end{document}
