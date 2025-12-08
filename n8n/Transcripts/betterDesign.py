@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     input_file = "n8n/Downloads/Sakinah Labs/Test2.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
-    output_file = "n8n/Results/test1.mp4"
+    output_file = "n8n/Downloads/Sakinah Labs/Last.mp4"
     log_file = "ffmpeg_srt_burn.log"
 
     # Get video size only to define blur area easily.
