@@ -1,7 +1,62 @@
-import subprocess
 import os
-import json
-import tempfile
+import subprocess
+
+
+def get_video_resolution(path: str) -> tuple[int, int]:
+    """
+    Return (width, height) of the first video stream using ffprobe.
+    """
+    cmd = [
+        "ffprobe", "-v", "error",
+        "-select_streams", "v:0",
+        "-show_entries", "stream=width,height",
+        "-of", "csv=s=x:p=0", path
+    ]
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if result.returncode != 0 or not result.stdout.strip():
+        raise RuntimeError(f"ffprobe failed for {path}")
+    w_str, h_str = result.stdout.strip().split("x")
+    return int(w_str), int(h_str)
+
+
+def build_force_style(font_style: dict) -> str:
+    """
+    Build ASS 'force_style' string from a simple dict.
+    Only a few common options are used to keep things simple.
+    """
+    font_name = font_style.get("font_name", "Arial")
+    font_size = font_style.get("font_size", "28")
+    font_color = font_style.get("font_color", "FFFFFF")       # PrimaryColour
+    outline_color = font_style.get("outline_color", "000000") # OutlineColour
+    outline = font_style.get("outline", "2")
+    shadow = font_style.get("shadow", "1")
+    alignment = font_style.get("alignment", "2")              # 2 = bottom-center
+    margin_l = font_style.get("margin_l", "20")
+    margin_r = font_style.get("margin_r", "20")
+    margin_v = font_style.get("margin_v", "40")
+
+    # ASS color format: &HBBGGRR (we ignore alpha for simplicity)
+    return (
+        f"FontName={font_name},"
+        f"Fontsize={font_size},"
+        f"PrimaryColour=&H{font_color},"
+        f"OutlineColour=&H{outline_color},"
+        f"BorderStyle=1,"
+        f"Outline={outline},"
+        f"Shadow={shadow},"
+        f"Alignment={alignment},"
+        f"MarginL={margin_l},"
+        f"MarginR={margin_r},"
+        f"MarginV={margin_v}"
+    )
+
+
+def escape_path_for_filter(path: str) -> str:
+    """
+    Escape path for use inside ffmpeg filter (single-quoted).
+    Very simple: escape single quotes by '\''.
+    """
+    return path.replace("'", r"'\''")
 
 
 def burn_srt_with_blur(
@@ -11,261 +66,96 @@ def burn_srt_with_blur(
     blur_area: dict,
     font_style: dict,
     blur_strength: int = 20,
-    log_file_path: str = "ffmpeg_output.log"
+    log_file_path: str = "ffmpeg_output.log",
 ):
-    
     """
-    Applies a blur effect to a region and burns an SRT subtitle file onto the video.
-    Requires ffmpeg to be installed with libass support.
+    - Blurs a rectangular area in the video.
+    - Burns SRT subtitles on top with simple styling.
+    """
 
-    Args:
-        input_video_path: Path to the source video file.
-        srt_file_path: Path to the .srt subtitle file.
-        output_video_path: Path to save the modified video file.
-        blur_area: A dictionary {'x': int, 'y': int, 'w': int, 'h': int} 
-                   defining the rectangle to blur.
-        font_style: A dictionary defining the subtitle style.
-        blur_strength: How strong the blur should be.
-        log_file_path: Path to the file where ffmpeg's output will be written.
-    """
+    # --- Basic checks ---
     if not os.path.exists(input_video_path):
-        print(f"Error: Input video not found at {input_video_path}")
+        print(f"Error: Input video not found: {input_video_path}")
         return
     if not os.path.exists(srt_file_path):
-        print(f"Error: SRT file not found at {srt_file_path}")
-        return
-    if not os.path.exists(font_style['font_file']):
-        print(f"Error: Font file not found at {font_style['font_file']}.")
+        print(f"Error: SRT file not found: {srt_file_path}")
         return
 
-    # Get video resolution for proper ASS scaling
-    width, height = get_video_resolution(input_video_path)
-    
-    # Create a temporary ASS file with proper styling
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.ass', delete=False, encoding='utf-8') as temp_ass:
-        temp_ass_file = temp_ass.name
-        
-        # Read the SRT file
-        with open(srt_file_path, 'r', encoding='utf-8') as srt_file:
-            srt_content = srt_file.read()
-        
-        # Get style parameters with defaults
-        font_name = os.path.basename(font_style['font_file']).split('.')[0]
-        font_size = font_style.get('font_size', '24')
-        font_color = font_style.get('font_color', 'FFFFFF')
-        outline_color = font_style.get('outline_color', '000000')
-        outline = font_style.get('outline', '2.0')
-        shadow = font_style.get('shadow', '1.0')
-        alignment = font_style.get('alignment', '2')  # 2 = bottom-center
-        margin_l = font_style.get('margin_l', '20')
-        margin_r = font_style.get('margin_r', '20')
-        margin_v = font_style.get('margin_v', str(height - 100))  # Position near bottom
-        
-        # Create ASS header with proper styling - USE ACTUAL VIDEO RESOLUTION
-        ass_header = f"""[Script Info]
-ScriptType: v4.00+
-PlayResX: {width}
-PlayResY: {height}
-ScaledBorderAndShadow: yes
-YCbCr Matrix: TV.709
+    # Ensure blur_area keys exist; user only has to pass x,y,w,h.
+    x = blur_area.get("x", 0)
+    y = blur_area.get("y", 0)
+    w = blur_area.get("w", 0)
+    h = blur_area.get("h", 0)
 
-[V4+ Styles]
-Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,{font_name},{font_size},&H{font_color},&H000000FF,&H{outline_color},&H00000000,0,0,0,0,100,100,0,0,1,{outline},{shadow},{alignment},{margin_l},{margin_r},{margin_v},1
+    # Build subtitle style string.
+    force_style = build_force_style(font_style)
 
-[Events]
-Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
-"""
-        
-        # Convert SRT to ASS events
-        ass_events = ""
-        srt_lines = srt_content.split('\n')
-        i = 0
-        while i < len(srt_lines):
-            line = srt_lines[i].strip()
-            if '-->' in line:
-                timestamp = line.replace(',', '.')
-                start_time, end_time = timestamp.split(' --> ')
-                text_lines = []
-                i += 1
-                while i < len(srt_lines) and srt_lines[i].strip() and not srt_lines[i].strip().isdigit() and '-->' not in srt_lines[i]:
-                    text_lines.append(srt_lines[i].strip())
-                    i += 1
-                
-                if text_lines:
-                    text = '\\N'.join(text_lines)  # \N for line breaks in ASS
-                    ass_events += f"Dialogue: 0,{start_time},{end_time},Default,,0,0,0,,{text}\n"
-            else:
-                i += 1
-        
-        temp_ass.write(ass_header + ass_events)
-    
-    print(f"Created temporary ASS file: {temp_ass_file}")
-    print(f"ASS PlayRes: {width}x{height}")
-    print(f"Text position - MarginV: {margin_v}, MarginR: {margin_r}")
-    
-    # OPTION 1: Text ON TOP of blur (recommended - text appears over blurred area)
+    # Escape paths for ffmpeg filter string.
+    srt_path_escaped = escape_path_for_filter(os.path.abspath(srt_file_path))
+
+    # Filter graph:
+    # 1) Crop + blur region from original video => [blurred_box]
+    # 2) Overlay blurred_box back onto original => [blurred_vid]
+    # 3) Burn subtitles on blurred_vid          => [final_v]
     filter_complex = (
-        f"[0:v]crop={blur_area['w']}:{blur_area['h']}:{blur_area['x']}:{blur_area['y']},"
+        f"[0:v]crop={w}:{h}:{x}:{y},"
         f"boxblur={blur_strength}[blurred_box];"
-        f"[0:v][blurred_box]overlay={blur_area['x']}:{blur_area['y']}[blurred_vid];"
-        f"[blurred_vid]ass='{temp_ass_file}'[final_v]"
+        f"[0:v][blurred_box]overlay={x}:{y}[blurred_vid];"
+        f"[blurred_vid]subtitles='{srt_path_escaped}':"
+        f"force_style='{force_style}'[final_v]"
     )
-    
-    # OPTION 2: Text BELOW blur (if you want text outside blurred area)
-    # filter_complex = (
-    #     f"[0:v]crop={blur_area['w']}:{blur_area['h']}:{blur_area['x']}:{blur_area['y']},"
-    #     f"boxblur={blur_strength}[blurred_box];"
-    #     f"[0:v]ass='{temp_ass_file}'[subtitled];"
-    #     f"[subtitled][blurred_box]overlay={blur_area['x']}:{blur_area['y']}[final_v]"
-    # )
-    
-    # The full ffmpeg command
-    command = [
-        'ffmpeg',
-        '-i', input_video_path,
-        '-filter_complex', filter_complex,
-        '-map', '[final_v]',
-        '-map', '0:a?',
-        '-c:a', 'copy',
-        '-y',
-        output_video_path
-    ]
 
-    print("Running ffmpeg command to burn subtitles...")
-    print(f"Command: {' '.join(command)}")
-    print(f"Output will be logged to: {log_file_path}")
-
-    try:
-        with open(log_file_path, 'w') as log_file:
-            result = subprocess.run(command, check=True, stdout=log_file, stderr=log_file)
-        print(f"\nSuccessfully created video with burned subtitles: {output_video_path}")
-        
-    except subprocess.CalledProcessError as e:
-        print(f"\nError during ffmpeg execution (code: {e.returncode}). Check the log file for details:")
-        print(f"Log file: {log_file_path}")
-        
-        # Try alternative approach if first one fails
-        print("\nTrying alternative approach...")
-        alt_filter_complex = (
-            f"[0:v]ass='{temp_ass_file}'[subtitled];"
-            f"[subtitled]crop={blur_area['w']}:{blur_area['h']}:{blur_area['x']}:{blur_area['y']},"
-            f"boxblur={blur_strength}[blurred_box];"
-            f"[subtitled][blurred_box]overlay={blur_area['x']}:{blur_area['y']}[final_v]"
-        )
-        
-        alt_command = [
-            'ffmpeg',
-            '-i', input_video_path,
-            '-filter_complex', alt_filter_complex,
-            '-map', '[final_v]',
-            '-map', '0:a?',
-            '-c:a', 'copy',
-            '-y',
-            output_video_path
-        ]
-        
-        try:
-            with open(log_file_path, 'a') as log_file:
-                log_file.write("\n\n=== TRYING ALTERNATIVE APPROACH ===\n")
-                subprocess.run(alt_command, check=True, stdout=log_file, stderr=log_file)
-            print(f"Alternative approach succeeded! Created: {output_video_path}")
-        except subprocess.CalledProcessError as e2:
-            print(f"Alternative approach also failed (code: {e2.returncode})")
-            
-    finally:
-        # Clean up temporary file
-        if os.path.exists(temp_ass_file):
-            os.remove(temp_ass_file)
-            print(f"Cleaned up temporary file: {temp_ass_file}")
-
-
-def get_video_resolution(path: str):
-    """Get video width and height using ffprobe."""
     cmd = [
-        "ffprobe", "-v", "error",
-        "-select_streams", "v:0",
-        "-show_entries", "stream=width,height",
-        "-of", "json", path
+        "ffmpeg",
+        "-i", input_video_path,
+        "-filter_complex", filter_complex,
+        "-map", "[final_v]",  # use processed video
+        "-map", "0:a?",       # copy audio if present
+        "-c:a", "copy",
+        "-y",                 # overwrite output
+        output_video_path,
     ]
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    data = json.loads(result.stdout)
-    w = data["streams"][0]["width"]
-    h = data["streams"][0]["height"]
-    return w, h
+
+    print("Running ffmpeg...")
+    print(" ".join(cmd))
+
+    with open(log_file_path, "w") as log_file:
+        try:
+            subprocess.run(cmd, check=True, stdout=log_file, stderr=log_file, text=True)
+            print(f"Done: {output_video_path}")
+        except subprocess.CalledProcessError as e:
+            print(f"ffmpeg failed with code {e.returncode}. See log: {log_file_path}")
 
 
-if __name__ == '__main__':
-    # --- CONFIGURATION ---
+if __name__ == "__main__":
+    # --- Simple example configuration ---
+
     input_file = "n8n/Downloads/Sakinah Labs/Test2.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
-    output_file = "n8n/Downloads/Sakinah Labs/video_with_subtitles.mp4"
+    output_file = "n8n/Downloads/Sakinah Labs/Last.mp4"
     log_file = "ffmpeg_srt_burn.log"
 
-    # Get video resolution
+    # Get video size only to define blur area easily.
     width, height = get_video_resolution(input_file)
     print(f"Video resolution: {width}x{height}")
 
-    # Define blur area (adjust as needed)
-    area_to_blur = {'x': 0, 'y': 1270, 'w': width, 'h': 130}
-    
-    # --- SUBTITLE STYLE CONFIGURATION ---
-    # IMPORTANT: Adjust these values based on your video resolution
-    # MarginV: Distance from top of screen (in pixels)
-    # MarginR: Distance from right edge (for alignment 3, 6, 9)
-    # MarginL: Distance from left edge (for alignment 1, 4, 7)
-    # Alignment: 1=bottom-left, 2=bottom-center, 3=bottom-right,
-    #            4=middle-left, 5=middle-center, 6=middle-right,
-    #            7=top-left, 8=top-center, 9=top-right
-    
-    # Option 1: Text at bottom-center (most common for subtitles)
+    # Blur a strip at the bottom (full width, 130px high).
+    area_to_blur = {"x": 0, "y": 1255, "w": width, "h": 150}
+
+    # Simple subtitle style (bottom-center).
     subtitle_style = {
-        'font_file': "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-        'font_size': '28',  # Adjust based on video resolution
-        'font_color': 'FFFFFF',  # White
-        'outline_color': '000000',  # Black outline
-        'outline': '2.0',
-        'shadow': '1.0',
-        'alignment': '2',  # 2 = bottom-center
-        'margin_l': '20',
-        'margin_r': '20',
-        'margin_v': str(height - 80)  # 80px from bottom
+        "font_name": "Arial",
+        "font_size": "16",
+        "font_color": "FFFFFF",      # white
+        "outline_color": "000000",   # black outline
+        "outline": "2",
+        "shadow": "1",
+        "alignment": "2",            # bottom-center
+        "margin_l": "20",
+        "margin_r": "20",
+        "margin_v": "82",            # distance from bottom
     }
-    
-    # Option 2: Text at bottom-right (if you want it in the corner)
-    # subtitle_style = {
-    #     'font_file': "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-    #     'font_size': '24',
-    #     'font_color': 'FFFFFF',
-    #     'outline_color': '000000',
-    #     'outline': '2.0',
-    #     'shadow': '1.0',
-    #     'alignment': '3',  # 3 = bottom-right
-    #     'margin_l': '20',
-    #     'margin_r': '40',  # 40px from right edge
-    #     'margin_v': str(height - 80)  # 80px from bottom
-    # }
-    
-    # Option 3: Text INSIDE the blurred area (top-right corner of blur)
-    # subtitle_style = {
-    #     'font_file': "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
-    #     'font_size': '22',
-    #     'font_color': 'FFFFFF',
-    #     'outline_color': '000000',
-    #     'outline': '3.0',  # Thicker outline for better visibility on blur
-    #     'shadow': '1.5',
-    #     'alignment': '9',  # 9 = top-right (inside blurred area)
-    #     'margin_l': '0',
-    #     'margin_r': '30',  # 30px from right edge of screen
-    #     'margin_v': str(area_to_blur['y'] + 20)  # 20px below top of blur area
-    # }
-    
-    print(f"\nBlur area: {area_to_blur}")
-    print(f"Text style: Alignment={subtitle_style['alignment']}, "
-          f"MarginV={subtitle_style['margin_v']}, "
-          f"MarginR={subtitle_style['margin_r']}")
-    
-    # --- Run the function ---
+
     burn_srt_with_blur(
         input_video_path=input_file,
         srt_file_path=srt_file,
@@ -273,5 +163,5 @@ if __name__ == '__main__':
         blur_area=area_to_blur,
         font_style=subtitle_style,
         blur_strength=20,
-        log_file_path=log_file
+        log_file_path=log_file,
     )
