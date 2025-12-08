@@ -1,0 +1,21 @@
+source env/bin/activate
+
+
+ffmpeg -i "n8n/Downloads/Sakinah Labs/Test2.mp4" -vn -acodec libmp3lame -q:a 2 "n8n/Downloads/Sakinah Labs/audio_for_transcription.mp3"
+
+
+whisper "n8n/Downloads/Sakinah Labs/audio_for_transcription.mp3" \
+  --model small \
+  --language ar \
+  --output_format srt \
+  --max_line_length 12 \
+  --output_dir transcripts
+
+
+whisper "n8n/Downloads/Sakinah Labs/audio_for_transcription.mp3" \
+  --model small \
+  --language en \
+  --output_format srt \
+  --word_timestamps True \
+  --max_words_per_line 1 \
+  --output_dir transcripts
