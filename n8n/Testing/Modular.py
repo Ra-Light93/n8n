@@ -20,8 +20,8 @@ class Configuration:
     bottom_margin: int = 140        # distance from bottom of video to subtitle canvas (px)
 
     # --- text style ---
-    font_name = "Impact"      # your chosen font Impact
-    font_size: int = 90
+    font_name = "Verdana Bold"      # your chosen font Impact / Verdana Bold
+    font_size: int = 70
     border_size: int = 12           # keep small; big values are VERY slow
 
     # --- extra padding around text (prevents cut-off) ---
@@ -216,17 +216,16 @@ def add_subtitles_to_video(
 
 if __name__ == "__main__":
     # IMPORTANT: if you run from inside the `n8n` folder, do NOT prefix with `n8n/`.
+    cfg = Configuration()
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
-    outputFileName = "test5NichtImpact"
+
+    outputFileName = cfg.font_name
     out = f"n8n/Testing/videoOuput/{outputFileName}.mp4"
 
-    cfg = Configuration()
+
 
     
-
-
-
     # ensure output dir exists
     out_dir = os.path.dirname(out)
     if out_dir:
