@@ -264,6 +264,22 @@
             overflow: hidden;
         }
 
+
+        .btn:disabled,
+        .btn[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(40%);
+            box-shadow: none;
+            pointer-events: none;
+        }
+
+        #submit-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(50%);
+        }
+
         #submit-btn {
             padding: 28px 60px;
             font-size: 24px;
@@ -928,11 +944,9 @@
                     <label for="model-select">Aktives LLM:</label>
                     <select id="model-select">
                         <option value="">-- Bitte wählen --</option>
-                        <option value="gpt-4">GPT-4</option>
-                        <option value="gpt-3.5">GPT-3.5</option>
+                        <option value="deep seek">Deep Seek</option>
+                        <option value="GPT-5-mini">GPT-5-mini</option>
                         <option value="gemini">Gemini</option>
-                        <option value="claude">Claude</option>
-                        <option value="llama">Llama</option>
                     </select>
                 </div>
 
@@ -980,7 +994,7 @@
                 const modalClose = document.getElementById('modal-close');
 
                 const savePromptSetUrl = 'http://localhost:5678/webhook/3fbcec4a-9b2b-46b7-8bf4-dd0978127272';
-                const AbionUltraLink = "http://localhost:5678/webhook-test/c42cd67f-6e09-4e97-b6fd-33700308e7a3";
+                const AbionUltraLink = "http://localhost:5678/webhook/c42cd67f-6e09-4e97-b6fd-33700308e7a3"; 
                 const loadDefaultPromptsLink = "http://localhost:5678/webhook/f137bec0-cec4-48cf-805e-bbcf8f3e261e";
                 const loadSetPromptsLink = "http://localhost:5678/webhook/dd874cdc-ca65-46e7-ac67-0675559e3cde";
 
@@ -1311,6 +1325,11 @@
                     if (!validateForm()) {
                         return;
                     }
+
+                    submitBtn.disabled = true;
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                    }, 5000);
 
                     const systemPrompts = getSystemPromptValues(true);
                     const userPrompts   = getUserPromptValues();
