@@ -29,6 +29,12 @@ class Configuration:
     pad_top_extra: int = 30
     pad_bottom_extra: int = 60    
 
+    # --- glow / soft shadow behind text (like a dark halo) ---
+    glow_enabled: bool = True
+    glow_radius: int = 12        # blur radius (bigger = softer / larger glow)
+    glow_spread: int = 4         # how far the glow extends before blur
+    glow_alpha: int = 190        # 0..255 (opacity of the glow)
+
     y_position: int = 500
 
 
@@ -70,8 +76,28 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
     y = pad_top
 
     # transparent canvas
-    img = Image.new("RGBA", (w, h), (0, 0, 0, 0)) # type: ignore
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))  # type: ignore
     draw = ImageDraw.Draw(img)
+
+    # GLOW (soft dark halo behind text)
+    if cfg.glow_enabled:
+        glow_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        glow_draw = ImageDraw.Draw(glow_layer)
+
+        spread = int(cfg.glow_spread)
+        for dx in range(-spread, spread + 1):
+            for dy in range(-spread, spread + 1):
+                glow_draw.text((x + dx, y + dy), text, font=font, fill=(0, 0, 0, 255))
+
+        glow_layer = glow_layer.filter(ImageFilter.GaussianBlur(int(cfg.glow_radius)))
+
+        # force glow opacity to cfg.glow_alpha
+        r, g, b, a = glow_layer.split()
+        a = a.point(lambda p: min(255, int(p * (cfg.glow_alpha / 255.0))))
+        glow_layer = Image.merge("RGBA", (r, g, b, a))
+
+        img = Image.alpha_composite(img, glow_layer)
+        draw = ImageDraw.Draw(img)  # rebind after composite
 
     # OUTLINE
     if border > 0:
