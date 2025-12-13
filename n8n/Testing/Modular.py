@@ -25,15 +25,15 @@ class Configuration:
     border_size: int = 5            # keep small; big values are VERY slow
 
     # --- extra padding around text (prevents cut-off) ---
-    pad_side_extra: int = 50
-    pad_top_extra: int = 30
-    pad_bottom_extra: int = 60    
+    pad_side_extra: int = 60
+    pad_top_extra: int = 70
+    pad_bottom_extra: int = 70    
 
     # --- glow / soft shadow behind text (like a dark halo) ---
     glow_enabled: bool = True
-    glow_radius: int = 20        # blur radius (bigger = softer / larger glow)
-    glow_spread: int = 10         # how far the glow extends before blur
-    glow_alpha: int = 210        # 0..255 (opacity of the glow)
+    glow_radius: int = 12        # blur radius (bigger = softer / larger glow)
+    glow_spread: int = 12         # how far the glow extends before blur
+    glow_alpha: int = 255        # 0..255 (opacity of the glow)
 
     y_position: int = 500
 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     # IMPORTANT: if you run from inside the `n8n` folder, do NOT prefix with `n8n/`.
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
-    outputFileName = "test1"
+    outputFileName = "test2"
     out = f"n8n/Testing/videoOuput/{outputFileName}.mp4"
 
     cfg = Configuration()
