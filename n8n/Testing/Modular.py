@@ -21,8 +21,8 @@ class Configuration:
 
     # --- text style ---
     font_name = "Verdana Bold"      # your chosen font Impact / Verdana Bold
-    font_size: int = 70
-    border_size: int = 12           # keep small; big values are VERY slow
+    font_size: int = 73
+    border_size: int = 12           # keep small; big values are VERY slow 12
 
     # --- extra padding around text (prevents cut-off) ---
     pad_side_extra: int = 60
@@ -31,8 +31,8 @@ class Configuration:
 
     # --- glow / soft shadow behind text (like a dark halo) ---
     glow_enabled: bool = True
-    glow_radius: int = 10        # blur radius (bigger = softer / larger glow)
-    glow_spread: int = 10         # how far the glow extends before blur
+    glow_radius: int = 12        # blur radius (bigger = softer / larger glow)
+    glow_spread: int = 12         # how far the glow extends before blur
     glow_alpha: int = 255        # 0..255 (opacity of the glow)
 
     y_position: int = 500
