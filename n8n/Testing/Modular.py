@@ -192,16 +192,7 @@ if __name__ == "__main__":
     outputFileName = "test1"
     out = "n8n/Testing/videoOuput/{outputFileName}.mp4"
 
-    cfg = Configuration(
-        font_name="Impact",
-        font_size=110,
-        border_size=2,
-        bottom_margin=140,
-        text_canvas_height=260,
-        pad_bottom_extra=50,
-    )
-
-
+    cfg = Configuration()
 
     # ensure output dir exists
     out_dir = os.path.dirname(out)
