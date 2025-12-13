@@ -190,9 +190,13 @@ if __name__ == "__main__":
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
     outputFileName = "test1"
-    out = "n8n/Testing/videoOuput/{outputFileName}.mp4"
+    out = f"n8n/Testing/videoOuput/{outputFileName}.mp4"
 
     cfg = Configuration()
+
+    
+
+
 
     # ensure output dir exists
     out_dir = os.path.dirname(out)
