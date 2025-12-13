@@ -22,18 +22,18 @@ class Configuration:
     # --- text style ---
     font_name: str = "Impact"       # your chosen font
     font_size: int = 100
-    border_size: int = 10            # keep small; big values are VERY slow
+    border_size: int = 5            # keep small; big values are VERY slow
 
     # --- extra padding around text (prevents cut-off) ---
-    pad_side_extra: int = 8
+    pad_side_extra: int = 50
     pad_top_extra: int = 30
     pad_bottom_extra: int = 60    
 
     # --- glow / soft shadow behind text (like a dark halo) ---
     glow_enabled: bool = True
-    glow_radius: int = 12        # blur radius (bigger = softer / larger glow)
-    glow_spread: int = 4         # how far the glow extends before blur
-    glow_alpha: int = 190        # 0..255 (opacity of the glow)
+    glow_radius: int = 20        # blur radius (bigger = softer / larger glow)
+    glow_spread: int = 10         # how far the glow extends before blur
+    glow_alpha: int = 210        # 0..255 (opacity of the glow)
 
     y_position: int = 500
 
@@ -81,7 +81,7 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
 
     # GLOW (soft dark halo behind text)
     if cfg.glow_enabled:
-        glow_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+        glow_layer = Image.new("RGBA", (w, h), (0, 0, 0, 0)) # type: ignore
         glow_draw = ImageDraw.Draw(glow_layer)
 
         spread = int(cfg.glow_spread)
@@ -93,7 +93,7 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
 
         # force glow opacity to cfg.glow_alpha
         r, g, b, a = glow_layer.split()
-        a = a.point(lambda p: min(255, int(p * (cfg.glow_alpha / 255.0))))
+        a = a.point(lambda p: min(255, int(p * (cfg.glow_alpha / 255.0)))) # type:ignore
         glow_layer = Image.merge("RGBA", (r, g, b, a))
 
         img = Image.alpha_composite(img, glow_layer)
