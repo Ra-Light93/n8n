@@ -29,13 +29,7 @@ class Configuration:
     pad_top_extra: int = 30
     pad_bottom_extra: int = 60    
 
-    # --- shadow (optional) ---
-    shadow_enabled: bool = True
-    shadow_dx: int = 3
-    shadow_dy: int = 3
-    shadow_rgba: Tuple[int, int, int, int] = (0, 0, 0, 180)
-
-    y_position: int = 2000
+    y_position: int = 500
 
 
 # Backwards-compat alias if you still pass SubtitleConfig somewhere
@@ -86,15 +80,6 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
                 if dx == 0 and dy == 0:
                     continue
                 draw.text((x + dx, y + dy), text, font=font, fill=(0, 0, 0, 255))
-
-    # SHADOW (draw after outline, before main text)
-    if cfg.shadow_enabled:
-        draw.text(
-            (x + int(cfg.shadow_dx), y + int(cfg.shadow_dy)),
-            text,
-            font=font,
-            fill=cfg.shadow_rgba,
-        )
 
     # MAIN TEXT
     draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
@@ -204,6 +189,8 @@ if __name__ == "__main__":
     # IMPORTANT: if you run from inside the `n8n` folder, do NOT prefix with `n8n/`.
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
+    outputFileName = "test1"
+    out = "n8n/Testing/videoOuput/{outputFileName}.mp4"
 
     cfg = Configuration(
         font_name="Impact",
@@ -212,10 +199,9 @@ if __name__ == "__main__":
         bottom_margin=140,
         text_canvas_height=260,
         pad_bottom_extra=50,
-        shadow_enabled=True,
     )
 
-    out = "n8n/Testing/videoOuput/subtitled_impact.mp4"
+
 
     # ensure output dir exists
     out_dir = os.path.dirname(out)
