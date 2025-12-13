@@ -20,9 +20,9 @@ class Configuration:
     bottom_margin: int = 140        # distance from bottom of video to subtitle canvas (px)
 
     # --- text style ---
-    font_name: str = "Impact"       # your chosen font
-    font_size: int = 100
-    border_size: int = 5            # keep small; big values are VERY slow
+    font_name = "Impact"      # your chosen font Impact
+    font_size: int = 90
+    border_size: int = 12           # keep small; big values are VERY slow
 
     # --- extra padding around text (prevents cut-off) ---
     pad_side_extra: int = 60
@@ -31,8 +31,8 @@ class Configuration:
 
     # --- glow / soft shadow behind text (like a dark halo) ---
     glow_enabled: bool = True
-    glow_radius: int = 12        # blur radius (bigger = softer / larger glow)
-    glow_spread: int = 12         # how far the glow extends before blur
+    glow_radius: int = 10        # blur radius (bigger = softer / larger glow)
+    glow_spread: int = 10         # how far the glow extends before blur
     glow_alpha: int = 255        # 0..255 (opacity of the glow)
 
     y_position: int = 500
@@ -99,12 +99,15 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
         img = Image.alpha_composite(img, glow_layer)
         draw = ImageDraw.Draw(img)  # rebind after composite
 
-    # OUTLINE
+    # OUTLINE (round / circular)
     if border > 0:
+        r2 = border * border
         for dx in range(-border, border + 1):
             for dy in range(-border, border + 1):
                 if dx == 0 and dy == 0:
                     continue
+                if (dx * dx + dy * dy) > r2:
+                    continue  # outside circle -> skip
                 draw.text((x + dx, y + dy), text, font=font, fill=(0, 0, 0, 255))
 
     # MAIN TEXT
@@ -215,7 +218,7 @@ if __name__ == "__main__":
     # IMPORTANT: if you run from inside the `n8n` folder, do NOT prefix with `n8n/`.
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     srt_file = "transcripts/audio_for_transcription.srt"
-    outputFileName = "test2"
+    outputFileName = "test5NichtImpact"
     out = f"n8n/Testing/videoOuput/{outputFileName}.mp4"
 
     cfg = Configuration()
