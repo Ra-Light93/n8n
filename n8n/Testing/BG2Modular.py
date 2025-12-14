@@ -68,11 +68,31 @@ class Configuration:
     cover_gradient_speed: float = 0.25   # cycles per second
     cover_gradient_width: float = 1.0    # 1.0 = full width, >1 wider & softer
 
+    # gradient style (NEW)
+    #   "linear": current left->right motion
+    #   "flow": adds vertical mixing + wavy distortion (more organic)
+    cover_gradient_style: str = "linear"
+
+    # cover animation variant (NEW)
+    # Available variants:
+    #   "adi_battery" -> smooth flowing ink (current default look)
+    #   "fire"        -> upward, warm, energetic motion
+    #   "electric"    -> sharp, fast, high-contrast waves
+    #   "mist"        -> slow, soft, cloudy movement
+    cover_animation_type: str = "adi_battery"
+
+    # chaos / flow controls (NEW)
+    cover_gradient_flow_strength: float = 0.35   # 0..1 (higher = more chaotic)
+    cover_gradient_flow_scale_x: float = 2.0     # frequency across x
+    cover_gradient_flow_scale_y: float = 1.5     # frequency across y
+    cover_gradient_flow_speed: float = 0.35      # additional swirl speed
+
     # gradient smoothing / motion function (NEW)
     # Options:
     #   "cosine"   -> seamless periodic blend (no seam edge) ✅ recommended
     #   "triangle" -> seamless periodic blend (sharper mid-transition)
     #   "wrap"     -> simple wrap (can show a seam edge)
+    #   Aliases: "seam", "seamless"
     cover_gradient_mode: str = "cosine"
     cover_gradient_blur_radius: int = 0   # 0=off; >0 makes colors blend like ink
 
@@ -102,6 +122,61 @@ class Configuration:
     # time range (set to full video by default)
     cover_start: float = 0.0
     cover_end: Optional[float] = None   # None => till end
+
+# =========================
+# COVER VARIANT MAPPING (NEW)
+# =========================
+
+def apply_cover_variant(cfg: Configuration) -> Configuration:
+    """
+    Returns a NEW Configuration with parameters adjusted
+    according to cfg.cover_animation_type.
+    """
+    v = cfg.cover_animation_type.lower().strip()
+
+    # defaults = AdiBattery (current look)
+    params = dict(
+        cover_gradient_style="flow",
+        cover_gradient_flow_strength=0.55,
+        cover_gradient_flow_scale_x=2.2,
+        cover_gradient_flow_scale_y=1.6,
+        cover_gradient_flow_speed=0.45,
+        cover_gradient_mode="cosine",
+        cover_gradient_blur_radius=6,
+    )
+
+    if v == "fire":
+        params.update(
+            cover_gradient_flow_strength=0.75,
+            cover_gradient_flow_scale_x=1.2,
+            cover_gradient_flow_scale_y=3.0,
+            cover_gradient_flow_speed=0.9,
+            cover_gradient_mode="triangle",
+            cover_gradient_blur_radius=4,
+        )
+
+    elif v == "electric":
+        params.update(
+            cover_gradient_flow_strength=0.65,
+            cover_gradient_flow_scale_x=3.5,
+            cover_gradient_flow_scale_y=2.8,
+            cover_gradient_flow_speed=1.2,
+            cover_gradient_mode="triangle",
+            cover_gradient_blur_radius=2,
+        )
+
+    elif v == "mist":
+        params.update(
+            cover_gradient_flow_strength=0.25,
+            cover_gradient_flow_scale_x=0.8,
+            cover_gradient_flow_scale_y=0.8,
+            cover_gradient_flow_speed=0.15,
+            cover_gradient_mode="cosine",
+            cover_gradient_blur_radius=10,
+        )
+
+    # return a modified copy (Configuration is frozen)
+    return Configuration(**{**cfg.__dict__, **params})
 
 
 # =========================
@@ -210,6 +285,7 @@ def sample_color_stops(colors: Tuple[Tuple[int, int, int], ...], t: float) -> Tu
 
 
 
+
 def create_horizontal_gradient(
     width: int,
     height: int,
@@ -220,6 +296,13 @@ def create_horizontal_gradient(
     mode: str = "cosine",
     blur_radius: int = 0,
     colors: Optional[Tuple[Tuple[int, int, int], ...]] = None,
+    *,
+    style: str = "linear",
+    flow_strength: float = 0.35,
+    flow_scale_x: float = 2.0,
+    flow_scale_y: float = 1.5,
+    flow_speed: float = 0.35,
+    t: float = 0.0,
 ) -> Image.Image:
     """
     Creates a horizontally moving RGB gradient.
@@ -228,6 +311,11 @@ def create_horizontal_gradient(
       - "cosine": seamless periodic blend (no seam)
       - "triangle": seamless periodic blend (different feel)
       - "wrap": simple wrap (may show seam)
+      - Aliases: "seam", "seamless"
+
+    style:
+      - "linear": left->right only (default)
+      - "flow": mixed, wavy, more organic
 
     colors:
       - None => use left/right
@@ -237,40 +325,65 @@ def create_horizontal_gradient(
     height = max(1, int(height))
     span = max(0.01, float(span))
 
-    # positions across the width (0..1)
-    xs = np.linspace(0.0, 1.0, width, endpoint=True, dtype=np.float32)
-    p = xs * span + float(offset)
-
     mode_l = str(mode).lower().strip()
+    # Accept user-friendly aliases
+    if mode_l in ("seam", "seamless"):
+        mode_l = "cosine"
 
-    # Base parameter in [0..1]
+    # normalized grids
+    xs = np.linspace(0.0, 1.0, width, endpoint=True, dtype=np.float32)
+    ys = np.linspace(0.0, 1.0, height, endpoint=True, dtype=np.float32)
+    X = xs[None, :]  # (1,W)
+    Y = ys[:, None]  # (H,1)
+
+    p = (X * span) + float(offset)
+
+    style_l = str(style).lower().strip()
+    s = float(np.clip(flow_strength, 0.0, 1.0))
+    sx = float(max(0.01, flow_scale_x))
+    sy = float(max(0.01, flow_scale_y))
+    spd = float(flow_speed)
+
+    if style_l == "flow" and s > 0.0:
+        # Create a smooth 2D distortion field using a few traveling sine waves (cheap “turbulence”)
+        tt = float(t) * spd
+
+        # Distortion varies by Y (top/bottom) + some X interaction
+        d1 = np.sin((2.0 * np.pi) * (Y * sy + tt))
+        d2 = np.sin((2.0 * np.pi) * (X * sx - tt * 0.7))
+        d3 = np.sin((2.0 * np.pi) * (Y * (sy * 0.6) + X * (sx * 0.4) + tt * 0.9))
+
+        # Combine and scale
+        distortion = (0.55 * d1 + 0.35 * d2 + 0.25 * d3) * (0.35 * s)
+
+        # Add small vertical phase shift to “mix” colors up/down
+        p = p + distortion + (0.18 * s) * np.sin((2.0 * np.pi) * (Y * (sy * 1.8) - tt * 0.5))
+    # else: linear uses p unchanged
+
+    # Convert phase p -> u in [0..1] using the chosen mode
     if mode_l == "wrap":
         u = np.mod(p, 1.0)
+    elif mode_l == "triangle":
+        frac = np.mod(p, 1.0)
+        u = 1.0 - np.abs(2.0 * frac - 1.0)
     else:
-        # seamless periodic blend 0..1 with no seam
-        # cosine: u = 0.5 - 0.5*cos(2*pi*p)
-        # triangle: u = 1 - |2*fract(p) - 1|
-        if mode_l == "triangle":
-            frac = np.mod(p, 1.0)
-            u = 1.0 - np.abs(2.0 * frac - 1.0)
-        else:
-            u = 0.5 - 0.5 * np.cos((2.0 * np.pi) * p)
+        u = 0.5 - 0.5 * np.cos((2.0 * np.pi) * p)
 
-    # Build columns
+    # u is (H,W) float32
+
     arr = np.zeros((height, width, 3), dtype=np.uint8)
 
     if colors is not None and len(colors) >= 2:
-        # Multi-stop: sample per x
-        for x in range(width):
-            c = sample_color_stops(colors, float(u[x]))
-            arr[:, x, :] = c
+        # Multi-stop: sample per pixel (still fast enough for small overlays)
+        for yy in range(height):
+            for xx in range(width):
+                arr[yy, xx, :] = sample_color_stops(colors, float(u[yy, xx]))
     else:
-        # Two-color: vectorized lerp
+        # Two-color: fully vectorized
         left_arr = np.array(left, dtype=np.float32)
         right_arr = np.array(right, dtype=np.float32)
-        cols = left_arr + (right_arr - left_arr) * u[:, None]   # (W,3)
-        cols = np.clip(cols, 0, 255).astype(np.uint8)
-        arr = np.repeat(cols[None, :, :], height, axis=0)
+        cols = left_arr + (right_arr - left_arr) * u[..., None]   # (H,W,3)
+        arr = np.clip(cols, 0, 255).astype(np.uint8)
 
     img = Image.fromarray(arr, mode="RGB")
 
@@ -648,6 +761,12 @@ def create_shadowed_cover_clip(video_w: int, video_h: int, cfg: Configuration) -
                 mode=getattr(cfg, "cover_gradient_mode", "cosine"),
                 blur_radius=int(getattr(cfg, "cover_gradient_blur_radius", 0)),
                 colors=(cfg.cover_gradient_colors if getattr(cfg, "cover_gradient_colors_enabled", False) else None),
+                style=getattr(cfg, "cover_gradient_style", "linear"),
+                flow_strength=float(getattr(cfg, "cover_gradient_flow_strength", 0.35)),
+                flow_scale_x=float(getattr(cfg, "cover_gradient_flow_scale_x", 2.0)),
+                flow_scale_y=float(getattr(cfg, "cover_gradient_flow_scale_y", 1.5)),
+                flow_speed=float(getattr(cfg, "cover_gradient_flow_speed", 0.35)),
+                t=float(t),
             )
 
             cover_rect = grad.convert("RGBA")
@@ -700,6 +819,9 @@ def cover_old_text(
     if cfg is None:
         cfg = Configuration()
 
+    # Apply named cover animation variant
+    cfg = apply_cover_variant(cfg)
+
     print("CWD:", os.getcwd())
     print("Input exists:", os.path.exists(input_video_path), input_video_path)
     if not os.path.exists(input_video_path):
@@ -751,56 +873,58 @@ def cover_old_text(
 
 if __name__ == "__main__":
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/covered_old_textColor.mp4"
+    output_file = "n8n/Testing/videoOuput/last anpassung orginal.mp4"
 
     cfg = Configuration(
-        cover_y=1265,
-        cover_w=700,
-        cover_h=140,
-        corner_radius=20,            # NEW: rounded corners radius
-        cover_aa=2,
-        cover_alpha_gamma=1.0,
-        anchor_x_ratio=0.5,          # fixed exact center
+        cover_y=1265,                        # Y-Position des Covers | höher = weiter unten, niedriger = weiter oben
+        cover_w=700,                         # Breite des Covers | höher = breiter, niedriger = schmaler
+        cover_h=140,                         # Höhe des Covers | höher = höher, niedriger = flacher
+        corner_radius=20,                    # Radius der abgerundeten Ecken | höher = rundere Ecken, niedriger = eckiger
+        cover_aa=2,                          # Anti-Aliasing Qualität | höher = glattere Kanten, niedriger = gröbere Kanten
+        cover_alpha_gamma=1.0,               # Gamma für Transparenzkante | höher = härtere Kante, niedriger = weichere Kante
+        anchor_x_ratio=0.5,                  # Horizontale Position (0=links, 1=rechts) | 0.5 = genau mittig
 
-        cover_color=(0, 0, 0),
-        cover_opacity=280,
+        cover_color=(0, 0, 0),               # Grundfarbe des Covers (RGB)
+        cover_opacity=280,                   # Deckkraft (0=transparent, 255=voll) | höher = undurchsichtiger, niedriger = transparenter
 
-        cover_color_anim_enabled=True,
-        cover_color_from=(0, 120, 255),   # blue
-        cover_color_to=(0, 255, 160),     # green
-        cover_color_anim_duration=3.5,
-        cover_color_anim_pingpong=True,
+        cover_color_anim_enabled=True,       # Farb-Animation aktivieren | True = animiert, False = statisch
+        cover_color_from=(0, 120, 255),      # Startfarbe für Animation (RGB)
+        cover_color_to=(0, 255, 160),        # Endfarbe für Animation (RGB)
+        cover_color_anim_duration=3.5,       # Dauer für Farbwechsel (Sekunden) | höher = langsamer, niedriger = schneller
+        cover_color_anim_pingpong=True,      # Animation hin und zurück | True = A->B->A, False = nur A->B
 
-        cover_gradient_enabled=True,
-        cover_gradient_left=(0, 120, 255),   # blue
-        cover_gradient_right=(0, 255, 160),  # green
-        cover_gradient_colors_enabled=True,
-        cover_gradient_colors = tuple(MapColors("#05F3A0", 4, background="auto")), # type:ignore
+        cover_gradient_enabled=True,         # Farbverlauf aktivieren | True = Gradient, False = einfarbig
+        cover_gradient_left=(0, 120, 255),   # Gradientfarbe links (RGB)
+        cover_gradient_right=(0, 255, 160),  # Gradientfarbe rechts (RGB)
+        cover_gradient_colors_enabled=True,  # Multi-Stop Gradient aktivieren | True = mehrere Farben
+        cover_gradient_colors = tuple(MapColors("#5C2063", 4, background="auto")), #type:ignore Farb-Stopps für Verlauf
 
-        cover_gradient_mode="triangle",         # Verlauf-Bewegung: "cosine"=seamless weich, "triangle"=härter, "wrap"=kann Naht zeigen, “seam” ?
-        cover_gradient_speed=0.3,             # Geschwindigkeit: höher = schnellerer Drift, niedriger = ruhiger (0.3)     
-        cover_gradient_width=1.4,             # Breite/Stretch: höher = weicher & langsamerer Wechsel, niedriger = stärkerer Wechsel (1.4)
-        cover_gradient_blur_radius=6,         # Weichzeichnung (px): höher = mehr "ink"-Blend, niedriger/0 = schärfer (6)
+        cover_animation_type="mist",         # Animationsstil | "adi_battery", "fire", "electric", "mist"
 
-        blur_enabled=False,
-        blur_radius=7,
-        blur_padding=12,
+        # Der Rest wird automatisch durch den Stil angepasst
 
-        shadow_enabled=True,
-        shadow_color=(0, 0, 0),
-        shadow_opacity=120,
-        shadow_blur=28,
-        shadow_blur_margin_mult=4.0,
-        shadow_spread=14,
-        shadow_offset=(0, 0),
-        shadow_aa=2,
-        shadow_blur_enabled=True,
-        shadow_radius_add=0,
-        shadow_alpha_gamma=1.0,
-        shadow_pad_extra=0,
+        cover_gradient_speed=0.3,            # Animationsgeschwindigkeit (Zyklen/Sekunde) | höher = schneller, niedriger = ruhiger
+        cover_gradient_width=1.4,            # Breite des Gradients | höher = weicher/weiter, niedriger = schmaler/schneller Wechsel
 
-        cover_start=0.0,
-        cover_end=None,
+        blur_enabled=False,                  # Weichzeichner aktivieren | True = weicher Look
+        blur_radius=7,                       # Stärke des Weichzeichners | höher = stärker, niedriger = schwächer
+        blur_padding=12,                     # Extra-Rand für Blur | höher = mehr Rand
+
+        shadow_enabled=True,                 # Schatten aktivieren | True = Schlagschatten sichtbar
+        shadow_color=(0, 0, 0),              # Schattenfarbe (RGB)
+        shadow_opacity=200,                  # stärker sichtbar (160–220 ideal)
+        shadow_blur=8,                       # klein = scharfer Sonnen-Schatten
+        shadow_blur_margin_mult=2.5,         # genug Rand, ohne zu viel Abstand
+        shadow_spread=2,                     # nah an der Box (nicht „abgehoben“)
+        shadow_offset=(0, 2),                # minimal nach unten -> natürlicher Lichteinfall
+        shadow_aa=2,                         # Anti-Aliasing für Schatten | höher = glattere Kanten
+        shadow_blur_enabled=True,            # Schattenweichzeichner aktivieren | True = weicher Schatten
+        shadow_radius_add=0,                 # Extra-Radius für Schatten | höher = größerer Schatten
+        shadow_alpha_gamma=1.4,              # härtere Kante (Sonnenlicht!)
+        shadow_pad_extra=0,                  # Extra-Padding gegen Abschneiden | höher = mehr Rand
+
+        cover_start=0.0,                     # Startzeit des Covers (Sekunden) | höher = später, niedriger = früher
+        cover_end=None,                      # Endzeit (None = bis Videoende)
     )
 
     cover_old_text(input_file, output_file, cfg)
