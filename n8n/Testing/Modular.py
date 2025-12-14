@@ -7,6 +7,7 @@ import json
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 from enum import Enum
+import argparse
 
 
 # =========================
@@ -22,7 +23,9 @@ class Configuration:
     # --- text style ---
     font_name = "Verdana Bold"      # your chosen font Impact / Verdana Bold
     font_size: int = 73
-    border_size: int = 12           # keep small; big values are VERY slow 12
+    border_size: int = 12           # keep small; big values are VERY slow
+    border_color: Tuple[int, int, int] = (0, 0, 0)      # RGB
+    text_color: Tuple[int, int, int] = (255, 255, 255)  # RGB
 
     # --- extra padding around text (prevents cut-off) ---
     pad_side_extra: int = 60
@@ -108,10 +111,12 @@ def create_subtitle_clip(text: str, cfg: Configuration) -> ImageClip:
                     continue
                 if (dx * dx + dy * dy) > r2:
                     continue  # outside circle -> skip
-                draw.text((x + dx, y + dy), text, font=font, fill=(0, 0, 0, 255))
+                br, bg, bb = cfg.border_color
+                draw.text((x + dx, y + dy), text, font=font, fill=(br, bg, bb, 255))
 
     # MAIN TEXT
-    draw.text((x, y), text, font=font, fill=(255, 255, 255, 255))
+    r, g, b = cfg.text_color
+    draw.text((x, y), text, font=font, fill=(r, g, b, 255))
 
     # fixed canvas height to avoid vertical shifting
     if img.height < cfg.text_canvas_height:
@@ -215,26 +220,60 @@ def add_subtitles_to_video(
 # ---------- EXAMPLE USAGE ----------
 
 if __name__ == "__main__":
-    # IMPORTANT: if you run from inside the `n8n` folder, do NOT prefix with `n8n/`.
-    cfg = Configuration()
-    input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    srt_file = "transcripts/audio_for_transcription.srt"
+    parser = argparse.ArgumentParser(description="Add animated subtitles to a video")
 
-    outputFileName = cfg.font_name
-    out = f"n8n/Testing/videoOuput/{outputFileName}.mp4"
+    parser.add_argument("--input", required=True, help="Path to input video")
+    parser.add_argument("--srt", required=True, help="Path to SRT file")
+    parser.add_argument("--output", required=True, help="Path to output video")
+    parser.add_argument("--y", type=int, required=True, help="Y position of subtitles")
+    parser.add_argument("--size", type=int, required=True, help="Font size of subtitles")
+    parser.add_argument("--color", required=True, help="Text color in hex, e.g. #FFFFFF or FFFFFF")
+    parser.add_argument("--border-size", type=int, required=True, help="Border thickness in pixels")
+    parser.add_argument("--border-color", required=True, help="Border color in hex, e.g. #000000")
 
+    args = parser.parse_args()
 
+    hex_color = args.color.lstrip("#")
+    if len(hex_color) != 6:
+        raise ValueError("Color must be hex format: RRGGBB or #RRGGBB")
 
-    
-    # ensure output dir exists
-    out_dir = os.path.dirname(out)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
+    text_color = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+    border_hex = args.border_color.lstrip("#")
+    if len(border_hex) != 6:
+        raise ValueError("Border color must be hex format: RRGGBB or #RRGGBB")
+    border_color = tuple(int(border_hex[i:i+2], 16) for i in (0, 2, 4))
+
+    cfg = Configuration(
+        y_position=args.y,
+        font_size=args.size,
+        text_color=text_color,        # type: ignore
+        border_size=args.border_size,
+        border_color=border_color,    # type: ignore
+    )
+
 
     add_subtitles_to_video(
-        input_video_path=input_file,
-        srt_path=srt_file,
-        output_video_path=out,
+        input_video_path=args.input,
+        srt_path=args.srt,
+        output_video_path=args.output,
         preview=True,
         cfg=cfg,
     )
+
+
+# python ./n8n/Testing/Modular.py \
+#   --input  "n8n/Downloads/Sakinah Labs/TestVideo.mp4" \
+#   --srt "transcripts/audio_for_transcription.srt" \
+#   --output "n8n/Testing/videoOuput/CliTest.mp4" \
+#   --y 520 \
+#   --size 78 \
+#   --color "#FFFFFF" \
+#   --border-size 12 \
+#   --border-color "#000000"
+
+    #   black: 000000
+	# •	White: #FFFFFF
+	# •	Gold: #FFD700
+	# •	Red: #FF0000
+	# •	Cyan: #00FFFF
