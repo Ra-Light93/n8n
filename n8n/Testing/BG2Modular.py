@@ -209,6 +209,7 @@ def sample_color_stops(colors: Tuple[Tuple[int, int, int], ...], t: float) -> Tu
 
 
 
+
 def create_horizontal_gradient(
     width: int,
     height: int,
@@ -278,6 +279,264 @@ def create_horizontal_gradient(
         img = img.filter(ImageFilter.GaussianBlur(br))
 
     return img
+
+
+# =========================
+# COLOR MAPPING (TEXT -> BACKGROUND PALETTE)
+# =========================
+
+def _clamp01(x: float) -> float:
+    return max(0.0, min(1.0, x))
+
+
+def _srgb_to_linear(c: float) -> float:
+    # c in [0..1]
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _relative_luminance(rgb: Tuple[int, int, int]) -> float:
+    r, g, b = rgb
+    R = _srgb_to_linear(r / 255.0)
+    G = _srgb_to_linear(g / 255.0)
+    B = _srgb_to_linear(b / 255.0)
+    return 0.2126 * R + 0.7152 * G + 0.0722 * B
+
+
+def _contrast_ratio(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> float:
+    La = _relative_luminance(a)
+    Lb = _relative_luminance(b)
+    L1, L2 = (La, Lb) if La >= Lb else (Lb, La)
+    return (L1 + 0.05) / (L2 + 0.05)
+
+
+def _parse_hex_color(hex_color: str) -> Tuple[int, int, int]:
+    s = hex_color.strip().lstrip("#")
+    if len(s) == 3:  # #RGB
+        s = "".join([ch * 2 for ch in s])
+    if len(s) != 6:
+        raise ValueError(f"Invalid hex color: {hex_color}")
+    r = int(s[0:2], 16)
+    g = int(s[2:4], 16)
+    b = int(s[4:6], 16)
+    return (r, g, b)
+
+
+def _rgb_to_hex(rgb: Tuple[int, int, int]) -> str:
+    r, g, b = rgb
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def _rgb_to_hsl(rgb: Tuple[int, int, int]) -> Tuple[float, float, float]:
+    # returns (h in [0..360), s in [0..1], l in [0..1])
+    r, g, b = [v / 255.0 for v in rgb]
+    mx, mn = max(r, g, b), min(r, g, b)
+    d = mx - mn
+    l = (mx + mn) / 2.0
+    if d == 0:
+        return (0.0, 0.0, l)
+    s = d / (2.0 - mx - mn) if l > 0.5 else d / (mx + mn)
+    if mx == r:
+        h = ((g - b) / d) % 6.0
+    elif mx == g:
+        h = ((b - r) / d) + 2.0
+    else:
+        h = ((r - g) / d) + 4.0
+    h *= 60.0
+    return (h % 360.0, _clamp01(s), _clamp01(l))
+
+
+def _hsl_to_rgb(h: float, s: float, l: float) -> Tuple[int, int, int]:
+    # h in degrees, s/l in [0..1]
+    h = (h % 360.0) / 360.0
+    s = _clamp01(s)
+    l = _clamp01(l)
+
+    def hue2rgb(p: float, q: float, t: float) -> float:
+        if t < 0:
+            t += 1
+        if t > 1:
+            t -= 1
+        if t < 1 / 6:
+            return p + (q - p) * 6 * t
+        if t < 1 / 2:
+            return q
+        if t < 2 / 3:
+            return p + (q - p) * (2 / 3 - t) * 6
+        return p
+
+    if s == 0:
+        v = int(round(l * 255))
+        return (v, v, v)
+
+    q = l * (1 + s) if l < 0.5 else l + s - l * s
+    p = 2 * l - q
+    r = hue2rgb(p, q, h + 1 / 3)
+    g = hue2rgb(p, q, h)
+    b = hue2rgb(p, q, h - 1 / 3)
+    return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
+
+
+def _ensure_contrast(bg: Tuple[int, int, int], text: Tuple[int, int, int], min_ratio: float) -> Tuple[int, int, int]:
+    """
+    Adjust background lightness in HSL until contrast >= min_ratio (or max iterations).
+    Keeps hue/saturation, only changes lightness.
+
+    Important: Some (bg,text) pairs can NEVER reach strict ratios (e.g. bright red text vs white bg with min_ratio=4.5).
+    In that case we return the best-contrast candidate instead of drifting to pure white/black.
+    """
+    target = float(min_ratio)
+    current = _contrast_ratio(bg, text)
+    if current >= target:
+        return bg
+
+    h, s, l0 = _rgb_to_hsl(bg)
+
+    def search(direction: float) -> Tuple[Tuple[int, int, int], float]:
+        l = l0
+        best_rgb = bg
+        best_cr = current
+        for _ in range(40):
+            l = _clamp01(l + direction * 0.03)
+            cand = _hsl_to_rgb(h, s, l)
+            cr = _contrast_ratio(cand, text)
+            if cr > best_cr:
+                best_cr = cr
+                best_rgb = cand
+            if cr >= target:
+                return cand, cr
+        return best_rgb, best_cr
+
+    # Try both directions and pick whichever reaches target; otherwise pick best contrast.
+    cand_dark, cr_dark = search(-1.0)
+    cand_light, cr_light = search(1.0)
+
+    # Prefer the one that meets the target; otherwise, the higher contrast one.
+    if cr_dark >= target and cr_light >= target:
+        return cand_dark if cr_dark >= cr_light else cand_light
+    if cr_dark >= target:
+        return cand_dark
+    if cr_light >= target:
+        return cand_light
+    return cand_dark if cr_dark >= cr_light else cand_light
+
+
+def MapColors(
+    text_color: str | Tuple[int, int, int],
+    n: int = 3,
+    scheme: str = "complementary",
+    *,
+    min_contrast: float = 3.0,
+    as_hex: bool = False,
+    background: str = "auto",  # "auto" | "dark" | "light"
+) -> List[str] | List[Tuple[int, int, int]]:
+    """
+    Map a TEXT color -> a BACKGROUND palette (2/3/5 colors) using math in HSL space.
+
+    Parameters:
+      text_color: "#RRGGBB" / "#RGB" or (r,g,b)
+      n: number of background colors (2, 3, or 5 recommended)
+      scheme:
+        - "complementary": opposite hue + slight variants ✅ good default
+        - "analogous": close hues around complement
+        - "triadic": 3-way split hues
+        - "monochrome": same hue, different lightness
+      min_contrast: minimum WCAG-like contrast ratio vs text_color
+      as_hex: True => return ["#..."], False => return [(r,g,b), ...]
+      background:
+        - "auto": detect whether input color is dark/light (luminance) and choose a matching dark/light background ✅
+        - "dark": force darker backgrounds
+        - "light": force lighter backgrounds
+
+    Notes:
+      - This is designed for backgrounds behind text, so it prioritizes contrast.
+      - It keeps saturation moderate so the result looks “clean” in video overlays.
+    """
+    if isinstance(text_color, str):
+        text_rgb = _parse_hex_color(text_color)
+    else:
+        text_rgb = (int(text_color[0]), int(text_color[1]), int(text_color[2]))
+
+    n = int(n)
+    if n <= 0:
+        raise ValueError("n must be > 0")
+
+    th, ts, tl = _rgb_to_hsl(text_rgb)
+
+    # Choose a base hue opposite the text for background readability.
+    base_h = (th + 180.0) % 360.0
+
+    # Background saturation/lightness baseline
+    # Requested behavior:
+    #   - If the input (text) color is LIGHT -> choose DARK backgrounds
+    #   - If the input (text) color is DARK  -> choose LIGHT backgrounds
+    bg_mode = str(background).lower().strip()
+    text_lum = _relative_luminance(text_rgb)  # 0..1
+
+    dark_l = 0.16   # avoid pure black, looks nicer in video overlays
+    light_l = 0.78  # avoid near-white, keeps colors visible
+
+    if bg_mode == "dark":
+        base_l = dark_l
+    elif bg_mode == "light":
+        base_l = light_l
+    else:
+        # auto: detect light/dark by luminance (simple + stable)
+        # threshold ~0.50 works well for most colors
+        base_l = dark_l if text_lum >= 0.50 else light_l
+
+        # If the chosen side still gives weak contrast, flip it (rare edge cases)
+        # This keeps "auto" robust for very saturated mid-luminance colors.
+        test_bg = _hsl_to_rgb(base_h, 0.55, base_l)
+        if _contrast_ratio(test_bg, text_rgb) < float(min_contrast):
+            base_l = light_l if base_l == dark_l else dark_l
+
+    # pleasant saturation range for backgrounds
+    # - keep saturated enough to look “colorful”
+    # - but not so saturated that it looks noisy behind text
+    base_s = max(0.35, min(0.70, ts if ts > 0.18 else 0.55))
+
+    scheme_l = scheme.lower().strip()
+
+    def hues_for_scheme() -> List[float]:
+        if scheme_l == "monochrome":
+            return [base_h] * n
+        if scheme_l == "triadic":
+            # spread around the wheel
+            return [(base_h + 0.0) % 360.0, (base_h + 120.0) % 360.0, (base_h + 240.0) % 360.0][:n] + [base_h] * max(0, n - 3)
+        if scheme_l == "analogous":
+            # around base_h
+            steps = [-25.0, 0.0, 25.0, -50.0, 50.0]
+            return [((base_h + steps[i % len(steps)]) % 360.0) for i in range(n)]
+        # default: complementary with subtle variants
+        steps = [0.0, 18.0, -18.0, 36.0, -36.0]
+        return [((base_h + steps[i % len(steps)]) % 360.0) for i in range(n)]
+
+    hues = hues_for_scheme()
+
+    # Lightness pattern for 2/3/5 backgrounds to get variety but keep readability
+    if n == 2:
+        ls = [base_l, _clamp01(base_l + (0.10 if base_l < 0.5 else -0.10))]
+    elif n == 3:
+        ls = [base_l, _clamp01(base_l + (0.08 if base_l < 0.5 else -0.08)), _clamp01(base_l + (0.16 if base_l < 0.5 else -0.16))]
+    elif n == 5:
+        deltas = [0.0, 0.07, -0.07, 0.14, -0.14]
+        ls = [_clamp01(base_l + (d if base_l < 0.5 else -d)) for d in deltas]
+    else:
+        # general fallback
+        ls = [_clamp01(base_l + ((i - (n - 1) / 2) * 0.06) * (1 if base_l < 0.5 else -1)) for i in range(n)]
+
+    # Build palette, then enforce contrast
+    palette_rgb: List[Tuple[int, int, int]] = []
+    for i in range(n):
+        h = hues[i]
+        l = ls[i]
+        rgb = _hsl_to_rgb(h, base_s, l)
+        rgb = _ensure_contrast(rgb, text_rgb, float(min_contrast))
+        palette_rgb.append(rgb)
+
+    if as_hex:
+        return [_rgb_to_hex(c) for c in palette_rgb]
+    return palette_rgb
 
 
 def create_shadowed_cover_clip(video_w: int, video_h: int, cfg: Configuration) -> VideoClip:
@@ -485,6 +744,11 @@ def cover_old_text(
 # TEST RUN (UPDATED)
 # =========================
 
+#
+# Example:
+#   MapColors("#FFFFFF", n=3, scheme="complementary") -> 3 dark, readable backgrounds
+#   MapColors("#111111", n=5, scheme="analogous") -> 5 light backgrounds with harmony
+
 if __name__ == "__main__":
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     output_file = "n8n/Testing/videoOuput/covered_old_textColor.mp4"
@@ -499,7 +763,7 @@ if __name__ == "__main__":
         anchor_x_ratio=0.5,          # fixed exact center
 
         cover_color=(0, 0, 0),
-        cover_opacity=300,
+        cover_opacity=280,
 
         cover_color_anim_enabled=True,
         cover_color_from=(0, 120, 255),   # blue
@@ -511,15 +775,12 @@ if __name__ == "__main__":
         cover_gradient_left=(0, 120, 255),   # blue
         cover_gradient_right=(0, 255, 160),  # green
         cover_gradient_colors_enabled=True,
-        cover_gradient_colors=(
-            (90, 180, 255),  # ice blue
-            (120, 255, 220), # mint
-            (190, 140, 255), # lavender
-        ),
-        cover_gradient_mode="cosine",  # try: "triangle" or "wrap" or "cosine"
-        cover_gradient_speed=0.5,            # slow drift
-        cover_gradient_width=1.4,            # softer blend
-        cover_gradient_blur_radius=6,
+        cover_gradient_colors = tuple(MapColors("#05F3A0", 4, background="auto")), # type:ignore
+
+        cover_gradient_mode="triangle",         # Verlauf-Bewegung: "cosine"=seamless weich, "triangle"=härter, "wrap"=kann Naht zeigen, “seam” ?
+        cover_gradient_speed=0.3,             # Geschwindigkeit: höher = schnellerer Drift, niedriger = ruhiger (0.3)     
+        cover_gradient_width=1.4,             # Breite/Stretch: höher = weicher & langsamerer Wechsel, niedriger = stärkerer Wechsel (1.4)
+        cover_gradient_blur_radius=6,         # Weichzeichnung (px): höher = mehr "ink"-Blend, niedriger/0 = schärfer (6)
 
         blur_enabled=False,
         blur_radius=7,
@@ -558,3 +819,10 @@ if __name__ == "__main__":
 	# •	cover_gradient_blur_radius (Gaussian blur in pixels)
         # •	Higher: smoother “ink-like” blending, less banding; too high = muddy/washed.
         # •	Lower/0: crisp gradient; may show banding on some videos.
+
+
+    # (
+    #     (90, 180, 255),  # ice blue
+    #     (120, 255, 220), # mint
+    #     (190, 140, 255), # lavender
+    # ),
