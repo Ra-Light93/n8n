@@ -327,7 +327,7 @@ if __name__ == "__main__":
         anchor_x_ratio=0.5,          # fixed exact center
 
         cover_color=(0, 0, 0),
-        cover_opacity=245,
+        cover_opacity=230,
 
         blur_enabled=False,
         blur_radius=7,
@@ -335,7 +335,7 @@ if __name__ == "__main__":
 
         shadow_enabled=True,
         shadow_color=(0, 0, 0),
-        shadow_opacity=80,
+        shadow_opacity=120,
         shadow_blur=28,
         shadow_blur_margin_mult=4.0,
         shadow_spread=14,
