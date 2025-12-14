@@ -318,7 +318,7 @@ if __name__ == "__main__":
     output_file = "n8n/Testing/videoOuput/covered_old_text.mp4"
 
     cfg = Configuration(
-        cover_y=1250,
+        cover_y=1265,
         cover_w=700,
         cover_h=140,
         corner_radius=20,            # NEW: rounded corners radius
