@@ -760,7 +760,7 @@ if __name__ == "__main__":
             frame_thickness=20,
             frame_opacity=255,
             frame_mode="moving_palette",
-            frame_colors_rgb=[(148, 0, 211),(30, 30, 30),(200, 50, 100),  (30, 30, 30)],
+            frame_colors_rgb=[(148, 0, 211),(100, 100, 100),(200, 50, 100),  (100, 100, 100)],
             frame_palette_speed=0.20,
             frame_palette_direction=1,
             frame_color_hex=None,
@@ -770,7 +770,6 @@ if __name__ == "__main__":
             frame_inset=0,
             start=0.0,
             end=None,
-
 
             frame_blur_enabled=False,                # Aktiviert weichen Rand (Blur)
             frame_blur_radius=5,                   # Blur-Radius; höher = weicherer Rand
