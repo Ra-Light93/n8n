@@ -1,5 +1,7 @@
 source env/bin/activate
 
+yt-dlp --flat-playlist --print "%(url)s" https://www.youtube.com/@GainzSanity/shorts > shorts.txt
+
 
 ffmpeg -i "n8n/Downloads/Sakinah Labs/Test2.mp4" -vn -acodec libmp3lame -q:a 2 "n8n/Downloads/Sakinah Labs/audio_for_transcription.mp3"
 

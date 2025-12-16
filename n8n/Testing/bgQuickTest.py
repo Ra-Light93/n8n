@@ -178,6 +178,52 @@ def render_reel_preview(
     return output_video_path
 
 # =========================
+# BATCH PREVIEW RENDERER (NEW)
+# =========================
+def render_batch_previews(
+    base_output_dir: str,
+    cfg: Configuration,
+    *,
+    duration: float = 5.0,
+):
+    """
+    Renders one preview per color-combination entry.
+    - light/ -> BEST_LIGHT_COLOR_COMBINATIONS
+    - dark/  -> BEST_DARK_COLOR_COMBINATIONS
+    Filenames are index-based: 01.mp4, 02.mp4, ...
+    """
+
+    sets = [
+        ("light", BEST_LIGHT_COLOR_COMBINATIONS),
+        ("dark", BEST_DARK_COLOR_COMBINATIONS),
+    ]
+
+    for folder, combos in sets:
+        out_dir = os.path.join(base_output_dir, folder)
+        os.makedirs(out_dir, exist_ok=True)
+
+        for idx, colors in enumerate(combos, start=1):
+            # override ONLY the gradient colors for this run
+            cfg_run = Configuration(
+                **{
+                    **cfg.__dict__,
+                    "cover_gradient_colors_enabled": True,
+                    "cover_gradient_colors": tuple(colors),
+                }
+            )
+
+            name = f"{idx:02d}.mp4"
+            out_path = os.path.join(out_dir, name)
+
+            print(f"[BATCH] Rendering {folder}/{name}")
+
+            render_reel_preview(
+                output_video_path=out_path,
+                cfg=cfg_run,
+                duration=duration,
+            )
+
+# =========================
 # COVER VARIANT MAPPING (NEW)
 # =========================
 
@@ -925,7 +971,87 @@ def cover_old_text(
 #   MapColors("#FFFFFF", n=3, scheme="complementary") -> 3 dark, readable backgrounds
 #   MapColors("#111111", n=5, scheme="analogous") -> 5 light backgrounds with harmony
 
+
+
+BEST_LIGHT_COLOR_COMBINATIONS = [
+    [(236, 245, 255), (210, 230, 255)],            # Text: dunkelgrau / schwarz
+    [(240, 255, 250), (200, 240, 230)],            # Text: dunkelgrün
+    [(255, 245, 235), (255, 220, 190)],            # Text: braun / dunkelgrau
+    [(245, 240, 255), (220, 210, 255)],            # Text: dunkelviolett
+    [(255, 240, 245), (255, 210, 225)],            # Text: dunkelrot / anthrazit
+
+    [(235, 250, 255), (190, 225, 240)],            # Text: navy
+    [(245, 255, 240), (210, 240, 200)],            # Text: dunkelgrün
+    [(255, 250, 230), (255, 230, 180)],            # Text: dunkelbraun
+    [(240, 240, 240), (210, 210, 210)],            # Text: schwarz
+    [(250, 240, 255), (225, 210, 240)],            # Text: dunkelviolett
+
+    [(240, 255, 255), (200, 235, 235)],            # Text: petrol
+    [(255, 248, 240), (235, 215, 200)],            # Text: espresso
+    [(245, 255, 245), (215, 235, 215)],            # Text: dunkelgrün
+    [(255, 235, 240), (240, 200, 210)],            # Text: dunkelrot
+    [(245, 245, 255), (215, 215, 240)],            # Text: navy
+
+    [(255, 255, 240), (235, 235, 200)],            # Text: dunkeloliv
+    [(240, 250, 245), (200, 225, 215)],            # Text: petrol
+    [(255, 245, 250), (240, 210, 225)],            # Text: dunkelrosa
+    [(245, 240, 235), (220, 205, 195)],            # Text: dunkelbraun
+    [(235, 240, 255), (205, 215, 240)],            # Text: navy
+
+    [(250, 255, 245), (220, 235, 215)],            # Text: dunkelgrün
+    [(255, 250, 240), (235, 225, 205)],            # Text: dunkelbraun
+    [(245, 255, 250), (210, 240, 225)],            # Text: petrol
+    [(255, 245, 230), (235, 215, 185)],            # Text: espresso
+    [(240, 245, 255), (215, 220, 240)],            # Text: navy
+
+    [(255, 240, 240), (235, 210, 210)],            # Text: dunkelrot
+    [(245, 255, 240), (220, 240, 210)],            # Text: dunkelgrün
+    [(240, 255, 250), (210, 235, 230)],            # Text: petrol
+    [(255, 250, 245), (235, 220, 215)],            # Text: dunkelgrau
+]
+
+BEST_DARK_COLOR_COMBINATIONS = [
+    [(20, 24, 36), (40, 48, 72)],                   # Text: weiß
+    [(18, 30, 25), (35, 70, 55)],                   # Text: weiß
+    [(40, 20, 20), (90, 40, 40)],                   # Text: creme / weiß
+    [(30, 20, 45), (80, 60, 120)],                  # Text: weiß
+    [(25, 25, 25), (60, 60, 60)],                   # Text: weiß
+
+    [(10, 35, 60), (20, 90, 130)],                  # Text: weiß
+    [(20, 45, 30), (50, 110, 70)],                  # Text: weiß
+    [(60, 35, 15), (130, 80, 40)],                  # Text: creme
+    [(30, 30, 30), (90, 90, 90)],                   # Text: weiß
+    [(45, 20, 60), (110, 70, 140)],                 # Text: weiß
+
+    [(15, 50, 55), (40, 110, 120)],                 # Text: weiß
+    [(55, 40, 25), (120, 90, 60)],                  # Text: creme
+    [(20, 55, 25), (60, 120, 70)],                  # Text: weiß
+    [(60, 25, 35), (130, 60, 80)],                  # Text: weiß
+    [(20, 25, 55), (60, 70, 130)],                  # Text: weiß
+
+    [(55, 55, 20), (120, 120, 60)],                 # Text: weiß
+    [(15, 40, 35), (50, 100, 90)],                  # Text: weiß
+    [(60, 30, 45), (130, 70, 100)],                 # Text: weiß
+    [(45, 35, 25), (100, 80, 60)],                  # Text: creme
+    [(25, 30, 60), (60, 70, 130)],                  # Text: weiß
+
+    [(20, 45, 25), (55, 110, 60)],                  # Text: weiß
+    [(60, 45, 30), (120, 90, 60)],                  # Text: creme
+    [(20, 50, 45), (55, 110, 100)],                 # Text: weiß
+    [(60, 45, 20), (130, 100, 60)],                 # Text: creme
+    [(25, 35, 55), (60, 80, 120)],                  # Text: weiß
+
+    [(60, 20, 20), (130, 50, 50)],                  # Text: weiß
+    [(25, 55, 25), (70, 120, 70)],                  # Text: weiß
+    [(20, 55, 50), (60, 120, 110)],                 # Text: weiß
+    [(55, 45, 40), (110, 90, 80)],                  # Text: creme
+]
+
+
 if __name__ == "__main__":
+    ordnerlight = "light"
+    ordnerdark = "dark"
+    
     input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     output_file = "n8n/Testing/videoOuput/last anpassung.mp4"
 
@@ -982,13 +1108,21 @@ if __name__ == "__main__":
     )
 
     PREVIEW_REEL = True  # True = vertical Shorts/Reels preview, False = normal video
+    BATCH_PREVIEW = True  # True = render ALL light/dark combinations
 
     if PREVIEW_REEL:
-        render_reel_preview(
-            output_video_path=output_file,
-            cfg=cfg,
-            duration=5.0,  # seconds (Shorts / Reels)
-        )
+        if BATCH_PREVIEW:
+            render_batch_previews(
+                base_output_dir="n8n/Testing/videoOuput",
+                cfg=cfg,
+                duration=5.0,
+            )
+        else:
+            render_reel_preview(
+                output_video_path=output_file,
+                cfg=cfg,
+                duration=5.0,
+            )
     else:
         cover_old_text(input_file, output_file, cfg)
 
