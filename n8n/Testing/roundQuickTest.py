@@ -69,10 +69,6 @@ class Configuration:
     frame_palette_speed: float = 0.25   # cycles per second around the full perimeter
     frame_palette_direction: int = 1    # 1 = clockwise, -1 = counter-clockwise
 
-    # Moving palette head (rounded “bullet” for the FIRST color) (NEW)
-    frame_palette_head_enabled: bool = False
-    frame_palette_head_radius_mult: float = 0.85   # 0.2..2 | Radius = thickness * mult
-    frame_palette_head_blur: int = 2               # px | 0 = sharp, higher = softer edge
 
     # Solid color selection (used when frame_mode == "solid")
     # 1) Direct override (highest priority)
@@ -146,14 +142,19 @@ def _sample_palette(colors: np.ndarray, u: np.ndarray) -> np.ndarray:
     """Vectorized sampling of multi-stop palette. colors: (N,3) uint8, u: any shape float in [0,1]."""
     n = int(colors.shape[0])
     u = np.mod(u, 1.0).astype(np.float32)
-    pos = u * (n - 1)
-    i0 = np.floor(pos).astype(np.int32)
-    i1 = np.clip(i0 + 1, 0, n - 1)
-    f = (pos - i0).astype(np.float32)[..., None]
 
-    c0 = colors[i0]
-    c1 = colors[i1]
-    out = c0.astype(np.float32) + (c1.astype(np.float32) - c0.astype(np.float32)) * f
+    # Cyclic sampling: last color blends back into the first color
+    pos = u * n  # 0..n
+    i0_raw = np.floor(pos).astype(np.int32)        # 0..n
+    f = (pos - i0_raw.astype(np.float32))[..., None]
+
+    i0 = np.mod(i0_raw, n)                         # 0..n-1
+    i1 = np.mod(i0 + 1, n)                         # next index, wraps to 0
+
+    c0 = colors[i0].astype(np.float32)
+    c1 = colors[i1].astype(np.float32)
+
+    out = c0 + (c1 - c0) * f
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
@@ -539,32 +540,6 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
             img[y0:y1 + 1, x0:x0 + thickness, 0:3] = band_l
             img[y0:y1 + 1, x0:x0 + thickness, 3] = a
 
-            # ----- optional: rounded “bullet” head for the FIRST palette color -----
-            if bool(getattr(cfg, "frame_palette_head_enabled", False)):
-                mult = float(getattr(cfg, "frame_palette_head_radius_mult", 0.85))
-                mult = max(0.2, min(2.0, mult))
-                head_blur = int(max(0, getattr(cfg, "frame_palette_head_blur", 2)))
-
-                # head position follows the moving offset around the full perimeter
-                s_head = float((offset % 1.0) * perim)
-                cx, cy = _perim_pos_to_xy(s_head, x0, y0, x1, y1, thickness)
-
-                # use FIRST color stop as the head color (no black/tint)
-                c0 = colors[0].astype(np.uint8)
-                hr, hg, hb = int(c0[0]), int(c0[1]), int(c0[2])
-
-                r_head = float(thickness) * mult
-
-                # draw on separate layer then blur and composite (soft round cap)
-                base_pil = Image.fromarray(img, mode="RGBA")
-                layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-                d = ImageDraw.Draw(layer)
-                bbox = (cx - r_head, cy - r_head, cx + r_head, cy + r_head)
-                d.ellipse(bbox, fill=(hr, hg, hb, a))
-                if head_blur > 0:
-                    layer = layer.filter(ImageFilter.GaussianBlur(head_blur))
-                base_pil = Image.alpha_composite(base_pil, layer)
-                img = np.array(base_pil, dtype=np.uint8)
 
         # ===== moving mist that follows the moving palette transitions =====
         if mode == "moving_palette":
@@ -796,10 +771,6 @@ if __name__ == "__main__":
             start=0.0,
             end=None,
 
-            # Enable moving palette head (rounded bullet for first color)
-            frame_palette_head_enabled=True,
-            frame_palette_head_radius_mult=0.95,
-            frame_palette_head_blur=2,
 
             frame_blur_enabled=False,                # Aktiviert weichen Rand (Blur)
             frame_blur_radius=5,                   # Blur-Radius; höher = weicherer Rand
