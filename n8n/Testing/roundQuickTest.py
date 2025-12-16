@@ -661,7 +661,12 @@ def add_frame_to_video(
     print("Done.")
     return output_video_path
 
-
+def mid_rgb(c1: tuple[int, int, int], c2: tuple[int, int, int]) -> tuple[int, int, int]:
+    """Return the midpoint RGB color between two RGB colors."""
+    r = (int(c1[0]) + int(c2[0])) // 2
+    g = (int(c1[1]) + int(c2[1])) // 2
+    b = (int(c1[2]) + int(c2[2])) // 2
+    return (r, g, b)
 
 
 
@@ -751,16 +756,17 @@ BEST_DARK_COLOR_COMBINATIONS = [
 ]
 
 
+
 if __name__ == "__main__":
    # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/Neron/roundHead.mp4"
+    output_file = "n8n/Testing/videoOuput/Neron/colorX.mp4"
 
     cfg = Configuration(
             frame_enabled=True,
             frame_thickness=20,
             frame_opacity=255,
             frame_mode="moving_palette",
-            frame_colors_rgb=[(148, 0, 211),(100, 100, 100),(200, 50, 100),  (100, 100, 100)],
+            frame_colors_rgb=[(148, 0, 211),(80, 80, 80),(200, 50, 100),(80, 80, 80)],
             frame_palette_speed=0.20,
             frame_palette_direction=1,
             frame_color_hex=None,
