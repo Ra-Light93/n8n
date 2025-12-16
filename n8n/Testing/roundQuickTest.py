@@ -69,6 +69,11 @@ class Configuration:
     frame_palette_speed: float = 0.25   # cycles per second around the full perimeter
     frame_palette_direction: int = 1    # 1 = clockwise, -1 = counter-clockwise
 
+    # Moving palette head (rounded “bullet” for the FIRST color) (NEW)
+    frame_palette_head_enabled: bool = False
+    frame_palette_head_radius_mult: float = 0.85   # 0.2..2 | Radius = thickness * mult
+    frame_palette_head_blur: int = 2               # px | 0 = sharp, higher = softer edge
+
     # Solid color selection (used when frame_mode == "solid")
     # 1) Direct override (highest priority)
     frame_color_rgb: Optional[Tuple[int, int, int]] = None
@@ -203,6 +208,31 @@ def _blur_rgba_premult(img_rgba: np.ndarray, radius: int) -> np.ndarray:
 
     out = np.concatenate([rgb_b, b[:, :, 3:4]], axis=2)
     return np.clip(out, 0.0, 255.0).astype(np.uint8)
+
+
+# ===== helper: perimeter position to (x, y) on frame centerline =====
+def _perim_pos_to_xy(s: float, x0: int, y0: int, x1: int, y1: int, thickness: int) -> Tuple[float, float]:
+    """Map perimeter distance s (0..perim) to a point on the frame centerline."""
+    top_len = float(max(1, x1 - x0 + 1))
+    side_len = float(max(1, y1 - y0 + 1))
+    perim = 2.0 * (top_len + side_len)
+    s = float(s % perim)
+
+    half = thickness / 2.0
+    # TOP: left->right
+    if s < top_len:
+        return (x0 + s, y0 + half)
+    s -= top_len
+    # RIGHT: top->bottom
+    if s < side_len:
+        return (x1 - half, y0 + s)
+    s -= side_len
+    # BOTTOM: right->left
+    if s < top_len:
+        return (x1 - s, y1 - half)
+    s -= top_len
+    # LEFT: bottom->top
+    return (x0 + half, y1 - s)
 
 
 # ===== moving mist helper (travels with the moving palette transitions) =====
@@ -508,7 +538,33 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
             band_l = np.repeat(rgb_left[:, None, :], thickness, axis=1)
             img[y0:y1 + 1, x0:x0 + thickness, 0:3] = band_l
             img[y0:y1 + 1, x0:x0 + thickness, 3] = a
-            # fall through to optional blur post-process
+
+            # ----- optional: rounded “bullet” head for the FIRST palette color -----
+            if bool(getattr(cfg, "frame_palette_head_enabled", False)):
+                mult = float(getattr(cfg, "frame_palette_head_radius_mult", 0.85))
+                mult = max(0.2, min(2.0, mult))
+                head_blur = int(max(0, getattr(cfg, "frame_palette_head_blur", 2)))
+
+                # head position follows the moving offset around the full perimeter
+                s_head = float((offset % 1.0) * perim)
+                cx, cy = _perim_pos_to_xy(s_head, x0, y0, x1, y1, thickness)
+
+                # use FIRST color stop as the head color (no black/tint)
+                c0 = colors[0].astype(np.uint8)
+                hr, hg, hb = int(c0[0]), int(c0[1]), int(c0[2])
+
+                r_head = float(thickness) * mult
+
+                # draw on separate layer then blur and composite (soft round cap)
+                base_pil = Image.fromarray(img, mode="RGBA")
+                layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+                d = ImageDraw.Draw(layer)
+                bbox = (cx - r_head, cy - r_head, cx + r_head, cy + r_head)
+                d.ellipse(bbox, fill=(hr, hg, hb, a))
+                if head_blur > 0:
+                    layer = layer.filter(ImageFilter.GaussianBlur(head_blur))
+                base_pil = Image.alpha_composite(base_pil, layer)
+                img = np.array(base_pil, dtype=np.uint8)
 
         # ===== moving mist that follows the moving palette transitions =====
         if mode == "moving_palette":
@@ -722,7 +778,7 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 if __name__ == "__main__":
    # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/Neron/base.mp4"
+    output_file = "n8n/Testing/videoOuput/Neron/roundHead.mp4"
 
     cfg = Configuration(
             frame_enabled=True,
@@ -739,7 +795,12 @@ if __name__ == "__main__":
             frame_inset=0,
             start=0.0,
             end=None,
-            
+
+            # Enable moving palette head (rounded bullet for first color)
+            frame_palette_head_enabled=True,
+            frame_palette_head_radius_mult=0.95,
+            frame_palette_head_blur=2,
+
             frame_blur_enabled=False,                # Aktiviert weichen Rand (Blur)
             frame_blur_radius=5,                   # Blur-Radius; höher = weicherer Rand
             frame_blur_opacity_mult=0.9,            # Multipliziert Sichtbarkeit nach Blur; niedriger = weniger sichtbar
