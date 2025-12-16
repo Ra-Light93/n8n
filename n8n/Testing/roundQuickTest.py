@@ -11,8 +11,6 @@ import argparse
 
 
 
-
-
 # =========================
 # CONFIG (ALL VARIABLES HERE)
 # =========================
@@ -23,6 +21,30 @@ class Configuration:
     frame_enabled: bool = True
     frame_thickness: int = 12                 # px
     frame_opacity: int = 255                  # 0..255
+
+    # Misty / shadow-like frame edge (NEW)
+    frame_blur_enabled: bool = False
+    frame_blur_radius: int = 8               # px | höher = weicher/mistiger Rand
+    frame_blur_opacity_mult: float = 1.0     # <1.0 = weniger sichtbar nach Blur
+    frame_blur_alpha_gamma: float = 1.0      # >1 härter, <1 weicher (nur Alpha)
+
+    # Moving mist (travels WITH the moving colors) (NEW)
+    # Only applied when frame_mode == "moving_palette"
+    frame_moving_mist_enabled: bool = False
+    frame_moving_mist_blur_radius: int = 14        # px | höher = mehr "Nebel"
+    frame_moving_mist_alpha_mult: float = 0.9      # 0..2 | höher = sichtbarer Nebel
+    frame_moving_mist_threshold: float = 0.06      # 0..1 | höher = Nebel nur bei starken Farbübergängen
+    frame_moving_mist_edge_exclude_px: int = 4      # px | blendet statische Frame-Kanten aus (höher = weniger Nebel an den Rändern)
+    frame_moving_mist_expand_alpha: bool = True    # True = Nebel darf leicht nach innen/außen laufen
+
+    # Neon / Glow effect (NEW)
+    frame_neon_enabled: bool = False
+    frame_neon_glow_radius: int = 18              # px | höher = größerer Glow
+    frame_neon_glow_intensity: float = 1.2        # 0..5 | höher = stärker/heller
+    frame_neon_saturation_mult: float = 1.2       # 0..3 | höher = sattere Farben
+    frame_neon_brightness_add: int = 0            # -255..255 | + = heller
+    frame_neon_tint_rgb: Optional[Tuple[int,int,int]] = None  # None = Glow nutzt Frame-Farben; sonst Glow einfärben
+    frame_neon_alpha_mult: float = 1.0            # 0..3 | verstärkt/abschwaecht Alpha des Glows
 
     # Frame mode
     # - "solid": single color (from frame_color_rgb/hex OR from palette/index)
@@ -118,6 +140,7 @@ def _sample_palette(colors: np.ndarray, u: np.ndarray) -> np.ndarray:
     out = c0.astype(np.float32) + (c1.astype(np.float32) - c0.astype(np.float32)) * f
     return np.clip(out, 0, 255).astype(np.uint8)
 
+
 def _pick_frame_color(cfg: Configuration) -> Tuple[int, int, int]:
     # Solid mode only
     if cfg.frame_color_rgb is not None:
@@ -137,6 +160,164 @@ def _pick_frame_color(cfg: Configuration) -> Tuple[int, int, int]:
     combo = combos[i]
     j = int(cfg.frame_color_index_in_combo) % len(combo)
     return tuple(combo[j])  # type: ignore
+
+
+# ===== moving mist helper (travels with the moving palette transitions) =====
+def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
+    """
+    Adds a mist layer that follows moving palette transitions.
+    Works by blurring the frame and using a mask derived from color-change magnitude,
+    so mist appears mainly where colors transition (and therefore moves over time).
+    """
+    if not bool(getattr(cfg, "frame_moving_mist_enabled", False)):
+        return img_rgba
+
+    br = int(max(0, getattr(cfg, "frame_moving_mist_blur_radius", 0)))
+    if br <= 0:
+        return img_rgba
+
+    # Work masks
+    alpha = img_rgba[:, :, 3].astype(np.float32) / 255.0
+
+    # Erode alpha to exclude the static frame edges (inner/outer boundary), so mist follows ONLY moving color transitions.
+    exclude = int(max(0, getattr(cfg, "frame_moving_mist_edge_exclude_px", 0)))
+    inner = alpha.copy()
+    for _ in range(exclude):
+        up = np.pad(inner[1:, :], ((0, 1), (0, 0)), mode="edge")
+        dn = np.pad(inner[:-1, :], ((1, 0), (0, 0)), mode="edge")
+        lf = np.pad(inner[:, 1:], ((0, 0), (0, 1)), mode="edge")
+        rt = np.pad(inner[:, :-1], ((0, 0), (1, 0)), mode="edge")
+        inner = np.minimum(np.minimum(up, dn), np.minimum(lf, rt))
+
+    inner_mask = (inner > 0.5).astype(np.float32)
+
+    # Gradient magnitude of RGB (high at palette color transitions, low on flat areas)
+    rgb = img_rgba[:, :, 0:3].astype(np.float32) / 255.0
+
+    # x gradient
+    gx = np.abs(rgb[:, 1:, :] - rgb[:, :-1, :])
+    gx = np.pad(gx, ((0, 0), (0, 1), (0, 0)), mode="edge")
+
+    # y gradient
+    gy = np.abs(rgb[1:, :, :] - rgb[:-1, :, :])
+    gy = np.pad(gy, ((0, 1), (0, 0), (0, 0)), mode="edge")
+
+    grad = (gx + gy).mean(axis=2)  # 0..~1
+
+    # Only consider gradients well inside the frame (exclude edges)
+    grad = grad * inner_mask
+
+    thr = float(getattr(cfg, "frame_moving_mist_threshold", 0.06))
+    thr = max(0.0, min(0.95, thr))
+    mask = (grad - thr) / max(1e-6, (1.0 - thr))
+    mask = np.clip(mask, 0.0, 1.0)
+
+    # Blur the mask a bit by using the blurred RGBA as a carrier (cheap, no scipy)
+    pil_blur = Image.fromarray(img_rgba, mode="RGBA").filter(ImageFilter.GaussianBlur(br))
+    blur = np.array(pil_blur, dtype=np.uint8)
+    rgb_blur = blur[:, :, 0:3].astype(np.float32)
+
+    # Base alpha: optionally allow slight expansion using blurred alpha, but still respect inner_mask
+    base_alpha = alpha
+    if bool(getattr(cfg, "frame_moving_mist_expand_alpha", True)):
+        base_alpha = np.maximum(base_alpha, blur[:, :, 3].astype(np.float32) / 255.0)
+    base_alpha = base_alpha * inner_mask
+
+    alpha_mult = float(getattr(cfg, "frame_moving_mist_alpha_mult", 0.9))
+    alpha_mult = max(0.0, alpha_mult)
+
+    mist_alpha = np.clip(base_alpha * mask * alpha_mult, 0.0, 1.0)
+
+    # Composite: overlay blurred RGB only where mist_alpha>0
+    out = img_rgba.copy().astype(np.float32)
+    out[:, :, 0:3] = out[:, :, 0:3] * (1.0 - mist_alpha[:, :, None]) + rgb_blur * (mist_alpha[:, :, None])
+
+    # Alpha: keep original alpha, add a little where mist exists
+    out_a = np.maximum(out[:, :, 3] / 255.0, mist_alpha)
+    out[:, :, 3] = np.clip(out_a * 255.0, 0.0, 255.0)
+
+    return out.astype(np.uint8)
+
+
+# ===== neon glow helper (optional, post-process) =====
+def _apply_neon_glow(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
+    """
+    Neon glow post-process for the frame.
+    - Builds a blurred glow layer from the frame (or a tint color)
+    - Additively blends glow into RGB
+    - Optionally boosts saturation and brightness
+    Keeps the original alpha while allowing a soft outer glow.
+    """
+    if not bool(getattr(cfg, "frame_neon_enabled", False)):
+        return img_rgba
+
+    br = int(max(0, getattr(cfg, "frame_neon_glow_radius", 0)))
+    if br <= 0:
+        return img_rgba
+
+    intensity = float(getattr(cfg, "frame_neon_glow_intensity", 1.2))
+    intensity = max(0.0, intensity)
+
+    sat_mult = float(getattr(cfg, "frame_neon_saturation_mult", 1.2))
+    sat_mult = max(0.0, sat_mult)
+
+    bright_add = int(getattr(cfg, "frame_neon_brightness_add", 0))
+
+    alpha_mult = float(getattr(cfg, "frame_neon_alpha_mult", 1.0))
+    alpha_mult = max(0.0, alpha_mult)
+
+    tint = getattr(cfg, "frame_neon_tint_rgb", None)
+
+    # Build glow carrier: blur RGBA
+    pil = Image.fromarray(img_rgba, mode="RGBA")
+    pil_blur = pil.filter(ImageFilter.GaussianBlur(br))
+    glow = np.array(pil_blur, dtype=np.uint8).astype(np.float32)
+
+    base = img_rgba.astype(np.float32)
+
+    # Glow alpha (soft outer glow)
+    g_a = (glow[:, :, 3] / 255.0) * alpha_mult
+    g_a = np.clip(g_a, 0.0, 1.0)
+
+    # Choose glow color: either tinted or from blurred RGB
+    if tint is not None:
+        tr, tg, tb = tint
+        g_rgb = np.stack(
+            [
+                np.full_like(g_a, float(tr)),
+                np.full_like(g_a, float(tg)),
+                np.full_like(g_a, float(tb)),
+            ],
+            axis=2,
+        )
+    else:
+        g_rgb = glow[:, :, 0:3]
+
+    # Additive blend scaled by alpha and intensity
+    add = g_rgb * (g_a[:, :, None] * intensity)
+
+    out_rgb = base[:, :, 0:3] + add
+
+    # Brightness adjust
+    if bright_add != 0:
+        out_rgb = out_rgb + float(bright_add)
+
+    # Saturation boost (simple, stable)
+    if sat_mult != 1.0:
+        gray = out_rgb.mean(axis=2, keepdims=True)
+        out_rgb = gray + (out_rgb - gray) * sat_mult
+
+    out_rgb = np.clip(out_rgb, 0.0, 255.0)
+
+    # Alpha: keep original, but allow slight extension where glow exists
+    out_a = np.maximum(base[:, :, 3] / 255.0, g_a)
+    out_a = np.clip(out_a, 0.0, 1.0)
+
+    out = base.copy()
+    out[:, :, 0:3] = out_rgb
+    out[:, :, 3] = out_a * 255.0
+
+    return out.astype(np.uint8)
 
 
 def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> VideoClip:
@@ -181,53 +362,82 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
             # right
             img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 0:3] = (r, g, b)
             img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 3] = a
-            return img
+            # fall through to optional blur post-process
+        else:
+            # ===== moving palette mode =====
+            colors = _colors_from_config(cfg)  # (N,3)
+            speed = float(getattr(cfg, "frame_palette_speed", 0.25))
+            direction = 1 if int(getattr(cfg, "frame_palette_direction", 1)) >= 0 else -1
 
-        # ===== moving palette mode =====
-        colors = _colors_from_config(cfg)  # (N,3)
-        speed = float(getattr(cfg, "frame_palette_speed", 0.25))
-        direction = 1 if int(getattr(cfg, "frame_palette_direction", 1)) >= 0 else -1
+            top_len = inner_w
+            side_len = inner_h
+            perim = float(2 * (top_len + side_len))
+            if perim <= 1.0:
+                return img
 
-        top_len = inner_w
-        side_len = inner_h
-        perim = float(2 * (top_len + side_len))
-        if perim <= 1.0:
-            return img
+            # Global offset in [0..1)
+            offset = (t * speed * direction) % 1.0
 
-        # Global offset in [0..1)
-        offset = (t * speed * direction) % 1.0
+            # TOP (left->right)
+            xs = np.linspace(0.0, (top_len - 1) / perim, top_len, dtype=np.float32)
+            u_top = (offset + xs) % 1.0
+            rgb_top = _sample_palette(colors, u_top)  # (top_len,3)
+            band = np.repeat(rgb_top[None, :, :], thickness, axis=0)
+            img[y0:y0 + thickness, x0:x1 + 1, 0:3] = band
+            img[y0:y0 + thickness, x0:x1 + 1, 3] = a
 
-        # TOP (left->right)
-        xs = np.linspace(0.0, (top_len - 1) / perim, top_len, dtype=np.float32)
-        u_top = (offset + xs) % 1.0
-        rgb_top = _sample_palette(colors, u_top)  # (top_len,3)
-        band = np.repeat(rgb_top[None, :, :], thickness, axis=0)
-        img[y0:y0 + thickness, x0:x1 + 1, 0:3] = band
-        img[y0:y0 + thickness, x0:x1 + 1, 3] = a
+            # RIGHT (top->bottom)
+            ys = np.linspace(0.0, (side_len - 1) / perim, side_len, dtype=np.float32)
+            u_right = (offset + (top_len / perim) + ys) % 1.0
+            rgb_right = _sample_palette(colors, u_right)  # (side_len,3)
+            band_r = np.repeat(rgb_right[:, None, :], thickness, axis=1)
+            img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 0:3] = band_r
+            img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 3] = a
 
-        # RIGHT (top->bottom)
-        ys = np.linspace(0.0, (side_len - 1) / perim, side_len, dtype=np.float32)
-        u_right = (offset + (top_len / perim) + ys) % 1.0
-        rgb_right = _sample_palette(colors, u_right)  # (side_len,3)
-        band_r = np.repeat(rgb_right[:, None, :], thickness, axis=1)
-        img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 0:3] = band_r
-        img[y0:y1 + 1, x1 - thickness + 1:x1 + 1, 3] = a
+            # BOTTOM (right->left)
+            xs2 = np.linspace(0.0, (top_len - 1) / perim, top_len, dtype=np.float32)
+            u_bottom = (offset + ((top_len + side_len) / perim) + xs2) % 1.0
+            rgb_bottom = _sample_palette(colors, u_bottom)[::-1]  # reverse direction along edge
+            band_b = np.repeat(rgb_bottom[None, :, :], thickness, axis=0)
+            img[y1 - thickness + 1:y1 + 1, x0:x1 + 1, 0:3] = band_b
+            img[y1 - thickness + 1:y1 + 1, x0:x1 + 1, 3] = a
 
-        # BOTTOM (right->left)
-        xs2 = np.linspace(0.0, (top_len - 1) / perim, top_len, dtype=np.float32)
-        u_bottom = (offset + ((top_len + side_len) / perim) + xs2) % 1.0
-        rgb_bottom = _sample_palette(colors, u_bottom)[::-1]  # reverse direction along edge
-        band_b = np.repeat(rgb_bottom[None, :, :], thickness, axis=0)
-        img[y1 - thickness + 1:y1 + 1, x0:x1 + 1, 0:3] = band_b
-        img[y1 - thickness + 1:y1 + 1, x0:x1 + 1, 3] = a
+            # LEFT (bottom->top)
+            ys2 = np.linspace(0.0, (side_len - 1) / perim, side_len, dtype=np.float32)
+            u_left = (offset + ((2 * top_len + side_len) / perim) + ys2) % 1.0
+            rgb_left = _sample_palette(colors, u_left)[::-1]
+            band_l = np.repeat(rgb_left[:, None, :], thickness, axis=1)
+            img[y0:y1 + 1, x0:x0 + thickness, 0:3] = band_l
+            img[y0:y1 + 1, x0:x0 + thickness, 3] = a
+            # fall through to optional blur post-process
 
-        # LEFT (bottom->top)
-        ys2 = np.linspace(0.0, (side_len - 1) / perim, side_len, dtype=np.float32)
-        u_left = (offset + ((2 * top_len + side_len) / perim) + ys2) % 1.0
-        rgb_left = _sample_palette(colors, u_left)[::-1]
-        band_l = np.repeat(rgb_left[:, None, :], thickness, axis=1)
-        img[y0:y1 + 1, x0:x0 + thickness, 0:3] = band_l
-        img[y0:y1 + 1, x0:x0 + thickness, 3] = a
+        # ===== moving mist that follows the moving palette transitions =====
+        if mode == "moving_palette":
+            img = _apply_moving_mist(img, cfg)
+
+        # ===== neon glow post-process (optional) =====
+        img = _apply_neon_glow(img, cfg)
+
+        # ===== optional misty/shadow-like blur post-process =====
+        if bool(getattr(cfg, "frame_blur_enabled", False)):
+            br = int(max(0, getattr(cfg, "frame_blur_radius", 0)))
+            if br > 0:
+                # blur RGBA so edges get misty/soft
+                pil = Image.fromarray(img, mode="RGBA").filter(ImageFilter.GaussianBlur(br))
+                img = np.array(pil, dtype=np.uint8)
+
+            # adjust alpha softness (gamma) and intensity (mult)
+            a_gamma = float(getattr(cfg, "frame_blur_alpha_gamma", 1.0))
+            a_mult = float(getattr(cfg, "frame_blur_opacity_mult", 1.0))
+            if a_gamma != 1.0 or a_mult != 1.0:
+                alpha = img[:, :, 3].astype(np.float32) / 255.0
+                alpha = np.clip(alpha, 0.0, 1.0)
+                # gamma: <1 softer, >1 harder
+                if a_gamma != 1.0:
+                    alpha = np.power(alpha, max(0.05, a_gamma))
+                if a_mult != 1.0:
+                    alpha = np.clip(alpha * max(0.0, a_mult), 0.0, 1.0)
+                img[:, :, 3] = (alpha * 255.0).astype(np.uint8)
 
         return img
 
@@ -412,33 +622,52 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 
 if __name__ == "__main__":
-    input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
+   # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     output_file = "n8n/Testing/videoOuput/last anpassung ArrayFarbe.mp4"
 
     cfg = Configuration(
-        frame_enabled=True,
-        frame_thickness=14,
-        frame_opacity=255,
-        frame_mode="moving_palette",
-         frame_colors_rgb=  [(148, 0, 211),(0,0,0),(255,255,255)],
-        frame_palette_speed=0.35,
-        frame_palette_direction=1,
-        frame_color_hex=None,
-        frame_palette="dark",              # uses BEST_DARK_COLOR_COMBINATIONS
-        frame_palette_index=0,              # arbitrary: first combo
-        frame_color_index_in_combo=0,       # arbitrary: first color in that combo
-        frame_inset=0,
-        start=0.0,
-        end=None,
-    )
+            frame_enabled=True,
+            frame_thickness=20,
+            frame_opacity=255,
+            frame_mode="moving_palette",
+            frame_colors_rgb=[(148, 0, 211), (0, 0, 0), (30, 30, 30)],
+            frame_palette_speed=0.20,
+            frame_palette_direction=1,
+            frame_color_hex=None,
+            frame_palette="dark",              # uses BEST_DARK_COLOR_COMBINATIONS
+            frame_palette_index=0,              # arbitrary: first combo
+            frame_color_index_in_combo=0,       # arbitrary: first color in that combo
+            frame_inset=0,
+            start=0.0,
+            end=None,
+            
+            frame_blur_enabled=False,                # Aktiviert weichen Rand (Blur)
+            frame_blur_radius=5,                   # Blur-Radius; höher = weicherer Rand
+            frame_blur_opacity_mult=0.9,            # Multipliziert Sichtbarkeit nach Blur; niedriger = weniger sichtbar
+            frame_blur_alpha_gamma=0.85,            # Alpha-Gamma; <1 = weicher, >1 = härter
+            frame_moving_mist_enabled=True,         # Aktiviert bewegten Nebel-Effekt
+            frame_moving_mist_blur_radius=14,       # Blur für Nebel; höher = mehr Ausbreitung
+            frame_moving_mist_alpha_mult=0.3,       # Sichtbarkeit des Nebels; höher = stärker sichtbar
+            frame_moving_mist_threshold=0.06,       # Schwelle; höher = Nebel nur bei starken Übergängen
+            frame_moving_mist_edge_exclude_px=4,     # blendet statische Frame-Kanten aus (höher = weniger Rand-Nebel)
+            frame_moving_mist_expand_alpha=True,    # Nebel darf Alpha nach innen/außen erweitern
 
-    # Run immediately (vertical Shorts / Reels preview)
-    try:
-        v = VideoFileClip(input_file)
+            frame_neon_enabled=True,               # Neon/Glow aktivieren
+            frame_neon_glow_radius=18,             # größer = weiterer Glow
+            frame_neon_glow_intensity=1.4,         # stärker = heller
+            frame_neon_saturation_mult=1.25,       # sattere Farben
+            frame_neon_brightness_add=0,           # + macht heller
+            frame_neon_tint_rgb=None,              # None = Frame-Farben nutzen; z.B. (0,255,255) für Cyan-Neon
+            frame_neon_alpha_mult=1.0,             # Glow-Alpha verstärken/abschwaechen
+        )
+
+        # Run immediately (vertical Shorts / Reels preview)
+    try: 
+        v = VideoFileClip(input_file) #type:ignore
         dur = float(v.duration)
         v.close()
         if not (dur > 0.0):
-            dur = 2.0
+            dur = 5.0
     except Exception:
         dur = 2.0
 
