@@ -45,6 +45,12 @@ class Configuration:
     frame_neon_brightness_add: int = 0            # -255..255 | + = heller
     frame_neon_tint_rgb: Optional[Tuple[int,int,int]] = None  # None = Glow nutzt Frame-Farben; sonst Glow einfärben
     frame_neon_alpha_mult: float = 1.0            # 0..3 | verstärkt/abschwaecht Alpha des Glows
+    frame_neon_glow_luma_threshold: float = 0.12   # 0..1 | Glow nur aus helleren Bereichen (höher = weniger dunkler Rand)
+    frame_neon_glow_luma_softness: float = 0.10    # 0..1 | weicher Übergang der Threshold-Maske
+    frame_neon_base_recolor_enabled: bool = False  # True = Basis-Frame (nicht nur Glow) wird eingefärbt (verhindert schwarzen Rand)
+    frame_neon_base_tint_rgb: Optional[Tuple[int,int,int]] = None  # z.B. (0,255,255)
+    frame_neon_base_tint_strength: float = 0.35    # 0..1 | höher = mehr Tint auf dem Basis-Frame
+    frame_neon_base_dark_lift: int = 0             # 0..255 | hebt dunkle Kanten im Basis-Frame leicht an (0 = aus)
 
     # Frame mode
     # - "solid": single color (from frame_color_rgb/hex OR from palette/index)
@@ -275,9 +281,43 @@ def _apply_neon_glow(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
 
     base = img_rgba.astype(np.float32)
 
-    # Glow alpha (soft outer glow)
+    # ----- optional: recolor / lift the BASE frame to avoid black outline -----
+    if bool(getattr(cfg, "frame_neon_base_recolor_enabled", False)):
+        bt = getattr(cfg, "frame_neon_base_tint_rgb", None)
+        if bt is None:
+            bt = getattr(cfg, "frame_neon_tint_rgb", None)
+        if bt is not None:
+            tr, tg, tb = bt
+            strength = float(getattr(cfg, "frame_neon_base_tint_strength", 0.35))
+            strength = max(0.0, min(1.0, strength))
+            tint_rgb = np.array([float(tr), float(tg), float(tb)], dtype=np.float32)[None, None, :]
+            base[:, :, 0:3] = base[:, :, 0:3] * (1.0 - strength) + tint_rgb * strength
+
+    lift = int(getattr(cfg, "frame_neon_base_dark_lift", 0))
+    if lift != 0:
+        # lift only darker pixels a bit (prevents dark/black edge)
+        rgb = base[:, :, 0:3]
+        luma = (0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2])
+        w = np.clip((80.0 - luma) / 80.0, 0.0, 1.0)  # 1 for very dark, 0 for bright
+        base[:, :, 0:3] = np.clip(rgb + (w[:, :, None] * float(lift)), 0.0, 255.0)
+
+    # Glow alpha (soft outer glow) + mask to suppress dark/black outlines
     g_a = (glow[:, :, 3] / 255.0) * alpha_mult
     g_a = np.clip(g_a, 0.0, 1.0)
+
+    # Build a "glow source" mask from luminance: dark pixels contribute less glow
+    thr = float(getattr(cfg, "frame_neon_glow_luma_threshold", 0.12))
+    thr = max(0.0, min(0.95, thr))
+    soft = float(getattr(cfg, "frame_neon_glow_luma_softness", 0.10))
+    soft = max(1e-4, min(1.0, soft))
+
+    src_rgb = base[:, :, 0:3]
+    src_luma = (0.2126 * src_rgb[:, :, 0] + 0.7152 * src_rgb[:, :, 1] + 0.0722 * src_rgb[:, :, 2]) / 255.0
+    # smoothstep-like
+    m = np.clip((src_luma - thr) / soft, 0.0, 1.0)
+    m = m * m * (3.0 - 2.0 * m)
+
+    g_a = g_a * m
 
     # Choose glow color: either tinted or from blurred RGB
     if tint is not None:
@@ -659,6 +699,12 @@ if __name__ == "__main__":
             frame_neon_brightness_add=0,           # + macht heller
             frame_neon_tint_rgb=None,              # None = Frame-Farben nutzen; z.B. (0,255,255) für Cyan-Neon
             frame_neon_alpha_mult=1.0,             # Glow-Alpha verstärken/abschwaechen
+            frame_neon_glow_luma_threshold=0.12,    # höher = weniger Glow aus dunklen Bereichen (weniger schwarzer Rand)
+            frame_neon_glow_luma_softness=0.10,     # weicher Übergang der Maske
+            frame_neon_base_recolor_enabled=True,   # Basis einfärben -> reduziert schwarzen Rand stark
+            frame_neon_base_tint_rgb=None,          # None = nutzt frame_neon_tint_rgb; oder z.B. (0,255,255)
+            frame_neon_base_tint_strength=0.35,     # Stärke der Basis-Einfärbung
+            frame_neon_base_dark_lift=0,           # hebt dunkle Kanten leicht an
         )
 
         # Run immediately (vertical Shorts / Reels preview)
