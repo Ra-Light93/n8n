@@ -51,6 +51,11 @@ class Configuration:
     frame_neon_base_tint_rgb: Optional[Tuple[int,int,int]] = None  # z.B. (0,255,255)
     frame_neon_base_tint_strength: float = 0.35    # 0..1 | höher = mehr Tint auf dem Basis-Frame
     frame_neon_base_dark_lift: int = 0             # 0..255 | hebt dunkle Kanten im Basis-Frame leicht an (0 = aus)
+    # Edge color bleed (removes dark rim by bleeding local color into edge) (NEW)
+    frame_neon_edge_bleed_enabled: bool = True
+    frame_neon_edge_bleed_blur: int = 6            # px | blur used to sample local color
+    frame_neon_edge_bleed_strength: float = 0.55   # 0..1 | higher = stronger rim removal
+    frame_neon_edge_bleed_luma_cut: float = 0.35   # 0..1 | which pixels count as "too dark"
 
     # Frame mode
     # - "solid": single color (from frame_color_rgb/hex OR from palette/index)
@@ -168,6 +173,38 @@ def _pick_frame_color(cfg: Configuration) -> Tuple[int, int, int]:
     return tuple(combo[j])  # type: ignore
 
 
+# ===== helper: RGBA blur with premultiplied alpha =====
+def _blur_rgba_premult(img_rgba: np.ndarray, radius: int) -> np.ndarray:
+    """
+    Blur RGBA using premultiplied alpha to avoid dark/black fringes.
+    """
+    r = int(max(0, radius))
+    if r <= 0:
+        return img_rgba
+
+    x = img_rgba.astype(np.float32)
+    a = x[:, :, 3:4] / 255.0  # (H,W,1)
+
+    # premultiply
+    rgb_pm = x[:, :, 0:3] * a
+    pm = np.concatenate([rgb_pm, x[:, :, 3:4]], axis=2)  # keep alpha in 0..255 space
+
+    pil = Image.fromarray(np.clip(pm, 0, 255).astype(np.uint8), mode="RGBA")
+    pil_blur = pil.filter(ImageFilter.GaussianBlur(r))
+    b = np.array(pil_blur, dtype=np.float32)
+
+    a_b = b[:, :, 3:4] / 255.0
+    rgb_b_pm = b[:, :, 0:3]
+
+    # unpremultiply (avoid division by zero)
+    denom = np.maximum(a_b, 1e-6)
+    rgb_b = rgb_b_pm / denom
+    rgb_b = np.clip(rgb_b, 0.0, 255.0)
+
+    out = np.concatenate([rgb_b, b[:, :, 3:4]], axis=2)
+    return np.clip(out, 0.0, 255.0).astype(np.uint8)
+
+
 # ===== moving mist helper (travels with the moving palette transitions) =====
 def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
     """
@@ -274,12 +311,34 @@ def _apply_neon_glow(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
 
     tint = getattr(cfg, "frame_neon_tint_rgb", None)
 
-    # Build glow carrier: blur RGBA
-    pil = Image.fromarray(img_rgba, mode="RGBA")
-    pil_blur = pil.filter(ImageFilter.GaussianBlur(br))
-    glow = np.array(pil_blur, dtype=np.uint8).astype(np.float32)
+    # Build glow carrier: premultiplied-alpha blur (prevents dark rim)
+    glow = _blur_rgba_premult(img_rgba, br).astype(np.float32)
 
     base = img_rgba.astype(np.float32)
+
+    # ----- edge color bleed: remove dark rim by blending in LOCAL (original) color -----
+    if bool(getattr(cfg, "frame_neon_edge_bleed_enabled", False)):
+        ebb = int(max(0, getattr(cfg, "frame_neon_edge_bleed_blur", 0)))
+        ebs = float(getattr(cfg, "frame_neon_edge_bleed_strength", 0.55))
+        ebs = max(0.0, min(1.0, ebs))
+        cut = float(getattr(cfg, "frame_neon_edge_bleed_luma_cut", 0.35))
+        cut = max(0.0, min(1.0, cut))
+
+        if ebb > 0 and ebs > 0.0:
+            # local color carrier (small blur) – keeps hue identical to original moving palette
+            base_blur = _blur_rgba_premult(img_rgba, ebb).astype(np.float32)
+
+            rgb = base[:, :, 0:3]
+            alpha = base[:, :, 3] / 255.0
+
+            luma = (0.2126 * rgb[:, :, 0] + 0.7152 * rgb[:, :, 1] + 0.0722 * rgb[:, :, 2]) / 255.0
+
+            # weight: only for dark pixels inside the frame (alpha>0)
+            w = np.clip((cut - luma) / max(1e-6, cut), 0.0, 1.0)
+            w = w * alpha  # only where frame exists
+            w = w * ebs
+
+            base[:, :, 0:3] = rgb * (1.0 - w[:, :, None]) + base_blur[:, :, 0:3] * (w[:, :, None])
 
     # ----- optional: recolor / lift the BASE frame to avoid black outline -----
     if bool(getattr(cfg, "frame_neon_base_recolor_enabled", False)):
@@ -674,7 +733,7 @@ if __name__ == "__main__":
             frame_palette_speed=0.20,
             frame_palette_direction=1,
             frame_color_hex=None,
-            frame_palette="dark",              # uses BEST_DARK_COLOR_COMBINATIONS
+            frame_palette="dark",               # uses BEST_DARK_COLOR_COMBINATIONS
             frame_palette_index=0,              # arbitrary: first combo
             frame_color_index_in_combo=0,       # arbitrary: first color in that combo
             frame_inset=0,
@@ -704,6 +763,10 @@ if __name__ == "__main__":
             frame_neon_base_recolor_enabled=True,   # Basis einfärben -> reduziert schwarzen Rand stark
             frame_neon_base_tint_strength=0.35,     # Stärke der Basis-Einfärbung
             frame_neon_base_dark_lift=12,           # hebt dunkle Kanten leicht an
+            frame_neon_edge_bleed_enabled=True,     # entfernt dunklen Rand (bleed lokale Farbe in die Kante)
+            frame_neon_edge_bleed_blur=6,           # kleiner Blur = Farbe bleibt “original”
+            frame_neon_edge_bleed_strength=0.55,    # höher = weniger dunkle Kante
+            frame_neon_edge_bleed_luma_cut=0.35,    # höher = mehr Pixel gelten als „zu dunkel“
         )
 
         # Run immediately (vertical Shorts / Reels preview)
