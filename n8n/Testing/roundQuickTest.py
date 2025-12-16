@@ -663,14 +663,14 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 if __name__ == "__main__":
    # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/last anpassung ArrayFarbe.mp4"
+    output_file = "n8n/Testing/videoOuput/Neron/base.mp4"
 
     cfg = Configuration(
             frame_enabled=True,
             frame_thickness=20,
             frame_opacity=255,
             frame_mode="moving_palette",
-            frame_colors_rgb=[(148, 0, 211), (0, 0, 0), (30, 30, 30)],
+            frame_colors_rgb=[(148, 0, 211),(30, 30, 30),(200, 50, 100),  (30, 30, 30)],
             frame_palette_speed=0.20,
             frame_palette_direction=1,
             frame_color_hex=None,
@@ -693,18 +693,17 @@ if __name__ == "__main__":
             frame_moving_mist_expand_alpha=True,    # Nebel darf Alpha nach innen/außen erweitern
 
             frame_neon_enabled=True,               # Neon/Glow aktivieren
-            frame_neon_glow_radius=18,             # größer = weiterer Glow
+            frame_neon_glow_radius=17,           # größer = weiterer Glow
             frame_neon_glow_intensity=1.4,         # stärker = heller
-            frame_neon_saturation_mult=1.25,       # sattere Farben
+            frame_neon_saturation_mult=1.25,   #1.25,    # sattere Farben
             frame_neon_brightness_add=0,           # + macht heller
             frame_neon_tint_rgb=None,              # None = Frame-Farben nutzen; z.B. (0,255,255) für Cyan-Neon
-            frame_neon_alpha_mult=1.0,             # Glow-Alpha verstärken/abschwaechen
-            frame_neon_glow_luma_threshold=0.12,    # höher = weniger Glow aus dunklen Bereichen (weniger schwarzer Rand)
-            frame_neon_glow_luma_softness=0.10,     # weicher Übergang der Maske
+            frame_neon_alpha_mult=1.1,   #1.0          # Glow-Alpha verstärken/abschwaechen
+            frame_neon_glow_luma_threshold=0.0,    # 0.12,  höher = weniger Glow aus dunklen Bereichen (weniger schwarzer Rand)
+            frame_neon_glow_luma_softness= 0.0,     # 0.10 weicher Übergang der Maske
             frame_neon_base_recolor_enabled=True,   # Basis einfärben -> reduziert schwarzen Rand stark
-            frame_neon_base_tint_rgb=None,          # None = nutzt frame_neon_tint_rgb; oder z.B. (0,255,255)
             frame_neon_base_tint_strength=0.35,     # Stärke der Basis-Einfärbung
-            frame_neon_base_dark_lift=0,           # hebt dunkle Kanten leicht an
+            frame_neon_base_dark_lift=12,           # hebt dunkle Kanten leicht an
         )
 
         # Run immediately (vertical Shorts / Reels preview)
@@ -713,7 +712,7 @@ if __name__ == "__main__":
         dur = float(v.duration)
         v.close()
         if not (dur > 0.0):
-            dur = 5.0
+            dur = 2.0
     except Exception:
         dur = 2.0
 
