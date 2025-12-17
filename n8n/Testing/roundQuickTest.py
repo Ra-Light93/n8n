@@ -773,7 +773,6 @@ BEST_DARK_COLOR_COMBINATIONS = [
 ]
 
 
-
 if __name__ == "__main__":
    # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
     output_file = "n8n/Testing/videoOuput/last/colorX2.mp4"
@@ -783,7 +782,7 @@ if __name__ == "__main__":
             frame_thickness=16,
             frame_opacity=255,
             frame_mode="moving_palette",
-            frame_colors_rgb=[(148, 0, 211),(10, 200, 100)],
+            frame_colors_rgb= [(30, 20, 45), (80, 60, 120)],
             frame_palette_speed=0.20,
             frame_palette_direction=1,
             frame_color_hex=None,
@@ -837,6 +836,6 @@ if __name__ == "__main__":
         output_video_path=output_file,
         cfg=cfg,
         duration=dur,
-        fps=24,
+        fps=15,
         size=(720, 1280),
     )
