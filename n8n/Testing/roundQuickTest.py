@@ -8,6 +8,7 @@ from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 import argparse
+import cv2
 
 
 
@@ -179,10 +180,11 @@ def _pick_frame_color(cfg: Configuration) -> Tuple[int, int, int]:
     return tuple(combo[j])  # type: ignore
 
 
-# ===== helper: RGBA blur with premultiplied alpha =====
+# ===== helper: RGBA blur with premultiplied alpha (OpenCV) =====
 def _blur_rgba_premult(img_rgba: np.ndarray, radius: int) -> np.ndarray:
     """
     Blur RGBA using premultiplied alpha to avoid dark/black fringes.
+    Uses OpenCV GaussianBlur for speed (fallbacks to no-op if radius <= 0).
     """
     r = int(max(0, radius))
     if r <= 0:
@@ -195,9 +197,8 @@ def _blur_rgba_premult(img_rgba: np.ndarray, radius: int) -> np.ndarray:
     rgb_pm = x[:, :, 0:3] * a
     pm = np.concatenate([rgb_pm, x[:, :, 3:4]], axis=2)  # keep alpha in 0..255 space
 
-    pil = Image.fromarray(np.clip(pm, 0, 255).astype(np.uint8), mode="RGBA")
-    pil_blur = pil.filter(ImageFilter.GaussianBlur(r))
-    b = np.array(pil_blur, dtype=np.float32)
+    # OpenCV blur (fast). sigma=r, kernel auto.
+    b = cv2.GaussianBlur(pm, ksize=(0, 0), sigmaX=float(r), sigmaY=float(r), borderType=cv2.BORDER_REPLICATE)
 
     a_b = b[:, :, 3:4] / 255.0
     rgb_b_pm = b[:, :, 0:3]
@@ -236,8 +237,24 @@ def _perim_pos_to_xy(s: float, x0: int, y0: int, x1: int, y1: int, thickness: in
     return (x0 + half, y1 - s)
 
 
+# ===== fast inner mask helper (OpenCV erosion) =====
+def _compute_inner_mask(alpha01: np.ndarray, exclude: int) -> np.ndarray:
+    """
+    Fast erosion-based inner mask to exclude static frame edges.
+    alpha01: float32 alpha in [0,1]
+    returns float32 mask in {0,1}
+    """
+    ex = int(max(0, exclude))
+    if ex <= 0:
+        return (alpha01 > 0.5).astype(np.float32)
+
+    m = (alpha01 > 0.5).astype(np.uint8) * 255
+    kernel = np.ones((3, 3), dtype=np.uint8)
+    er = cv2.erode(m, kernel, iterations=ex)
+    return (er > 127).astype(np.float32)
+
 # ===== moving mist helper (travels with the moving palette transitions) =====
-def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
+def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration, inner_mask: Optional[np.ndarray] = None) -> np.ndarray:
     """
     Adds a mist layer that follows moving palette transitions.
     Works by blurring the frame and using a mask derived from color-change magnitude,
@@ -253,17 +270,10 @@ def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
     # Work masks
     alpha = img_rgba[:, :, 3].astype(np.float32) / 255.0
 
-    # Erode alpha to exclude the static frame edges (inner/outer boundary), so mist follows ONLY moving color transitions.
-    exclude = int(max(0, getattr(cfg, "frame_moving_mist_edge_exclude_px", 0)))
-    inner = alpha.copy()
-    for _ in range(exclude):
-        up = np.pad(inner[1:, :], ((0, 1), (0, 0)), mode="edge")
-        dn = np.pad(inner[:-1, :], ((1, 0), (0, 0)), mode="edge")
-        lf = np.pad(inner[:, 1:], ((0, 0), (0, 1)), mode="edge")
-        rt = np.pad(inner[:, :-1], ((0, 0), (1, 0)), mode="edge")
-        inner = np.minimum(np.minimum(up, dn), np.minimum(lf, rt))
-
-    inner_mask = (inner > 0.5).astype(np.float32)
+    # Inner mask: cacheable (depends only on alpha-shape + exclude)
+    if inner_mask is None:
+        exclude = int(max(0, getattr(cfg, "frame_moving_mist_edge_exclude_px", 0)))
+        inner_mask = _compute_inner_mask(alpha, exclude)
 
     # Gradient magnitude of RGB (high at palette color transitions, low on flat areas)
     rgb = img_rgba[:, :, 0:3].astype(np.float32) / 255.0
@@ -287,8 +297,7 @@ def _apply_moving_mist(img_rgba: np.ndarray, cfg: Configuration) -> np.ndarray:
     mask = np.clip(mask, 0.0, 1.0)
 
     # Blur the mask a bit by using the blurred RGBA as a carrier (cheap, no scipy)
-    pil_blur = Image.fromarray(img_rgba, mode="RGBA").filter(ImageFilter.GaussianBlur(br))
-    blur = np.array(pil_blur, dtype=np.uint8)
+    blur = cv2.GaussianBlur(img_rgba, ksize=(0, 0), sigmaX=float(br), sigmaY=float(br), borderType=cv2.BORDER_REPLICATE)
     rgb_blur = blur[:, :, 0:3].astype(np.float32)
 
     # Base alpha: optionally allow slight expansion using blurred alpha, but still respect inner_mask
@@ -455,6 +464,8 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
     W = int(max(1, video_w))
     H = int(max(1, video_h))
 
+    _mist_inner_mask_cache: Dict[Tuple[int, int, int], np.ndarray] = {}
+
     def make_frame(t: float):
         img = np.zeros((H, W, 4), dtype=np.uint8)
 
@@ -543,7 +554,14 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
 
         # ===== moving mist that follows the moving palette transitions =====
         if mode == "moving_palette":
-            img = _apply_moving_mist(img, cfg)
+            ex = int(max(0, getattr(cfg, "frame_moving_mist_edge_exclude_px", 0)))
+            key = (H, W, ex)
+            inner_mask = _mist_inner_mask_cache.get(key)
+            if inner_mask is None:
+                alpha01 = img[:, :, 3].astype(np.float32) / 255.0
+                inner_mask = _compute_inner_mask(alpha01, ex)
+                _mist_inner_mask_cache[key] = inner_mask
+            img = _apply_moving_mist(img, cfg, inner_mask=inner_mask)
 
         # ===== neon glow post-process (optional) =====
         img = _apply_neon_glow(img, cfg)
@@ -552,9 +570,8 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
         if bool(getattr(cfg, "frame_blur_enabled", False)):
             br = int(max(0, getattr(cfg, "frame_blur_radius", 0)))
             if br > 0:
-                # blur RGBA so edges get misty/soft
-                pil = Image.fromarray(img, mode="RGBA").filter(ImageFilter.GaussianBlur(br))
-                img = np.array(pil, dtype=np.uint8)
+                # blur RGBA so edges get misty/soft (OpenCV for speed)
+                img = cv2.GaussianBlur(img, ksize=(0, 0), sigmaX=float(br), sigmaY=float(br), borderType=cv2.BORDER_REPLICATE).astype(np.uint8)
 
             # adjust alpha softness (gamma) and intensity (mult)
             a_gamma = float(getattr(cfg, "frame_blur_alpha_gamma", 1.0))
@@ -782,14 +799,14 @@ if __name__ == "__main__":
             frame_blur_opacity_mult=0.9,            # Multipliziert Sichtbarkeit nach Blur; niedriger = weniger sichtbar
             frame_blur_alpha_gamma=0.85,            # Alpha-Gamma; <1 = weicher, >1 = härter
             frame_moving_mist_enabled=True,         # Aktiviert bewegten Nebel-Effekt
-            frame_moving_mist_blur_radius=6,        # Blur für Nebel; höher = mehr Ausbreitung
+            frame_moving_mist_blur_radius=4,        # Blur für Nebel; höher = mehr Ausbreitung
             frame_moving_mist_alpha_mult=0.3,       # Sichtbarkeit des Nebels; höher = stärker sichtbar
             frame_moving_mist_threshold=0.10,       # Schwelle; höher = Nebel nur bei starken Übergängen
             frame_moving_mist_edge_exclude_px=1,    # blendet statische Frame-Kanten aus (höher = weniger Rand-Nebel)
-            frame_moving_mist_expand_alpha=True,    # Nebel darf Alpha nach innen/außen erweitern
+            frame_moving_mist_expand_alpha=False,    # Nebel darf Alpha nach innen/außen erweitern
 
             frame_neon_enabled=True,                # Neon/Glow aktivieren
-            frame_neon_glow_radius=6,               # größer = weiterer Glow
+            frame_neon_glow_radius=4,               # größer = weiterer Glow
             frame_neon_glow_intensity=1.25,         # stärker = heller
             frame_neon_saturation_mult=1.05,        #1.1,    # sattere Farben
             frame_neon_brightness_add=0,            # + macht heller
@@ -820,4 +837,6 @@ if __name__ == "__main__":
         output_video_path=output_file,
         cfg=cfg,
         duration=dur,
+        fps=24,
+        size=(720, 1280),
     )
