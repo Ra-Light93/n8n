@@ -591,44 +591,6 @@ def create_border_frame_clip(video_w: int, video_h: int, cfg: Configuration) -> 
     return VideoClip(make_frame, is_mask=False)
 
 
-# =========================
-# REELS / SHORTS PREVIEW RENDERER
-# =========================
-
-def render_reel_preview(
-    output_video_path: str,
-    cfg: Configuration,
-    *,
-    duration: float = 10.0,
-    fps: int = 30,
-    size: Tuple[int, int] = (1080, 1920),  # Shorts / Reels (9:16)
-    bg_color: Tuple[int, int, int] = (255, 255, 255),
-):
-    """Preview-only vertical renderer (white background) + border frame."""
-    W, H = size
-
-    bg = Image.new("RGB", (W, H), bg_color)
-    bg_clip = ImageClip(np.array(bg)).with_duration(duration)
-
-    frame = create_border_frame_clip(W, H, cfg).with_duration(duration)
-
-    final = CompositeVideoClip([bg_clip, frame], size=(W, H))
-
-    out_dir = os.path.dirname(output_video_path)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-
-    final.write_videofile(
-        output_video_path,
-        codec="libx264",
-        fps=fps,
-        preset="ultrafast",
-        audio=False,
-        threads=4,
-    )
-
-    final.close()
-    return output_video_path
 
 
 # =========================
@@ -649,13 +611,13 @@ def add_frame_to_video(
         raise FileNotFoundError(input_video_path)
 
     video = VideoFileClip(input_video_path)
-
+    video = video.resized(new_size=(720,1280))
     # duration range
     start = float(cfg.start)
-    end = float(cfg.end) if cfg.end is not None else float(video.duration)
+    end = float(cfg.end) if cfg.end is not None else float(video.duration) # type:ignore
     dur = max(0.0, end - start)
 
-    frame = create_border_frame_clip(video.w, video.h, cfg).with_duration(dur).with_start(start)
+    frame = create_border_frame_clip(video.w, video.h, cfg).with_duration(dur).with_start(start) # type:ignore
 
     final = CompositeVideoClip([video, frame])
 
@@ -667,8 +629,8 @@ def add_frame_to_video(
     final.write_videofile(
         output_video_path,
         codec="libx264",
-        fps=video.fps,
-        preset="medium",
+        fps=20,
+        preset="ultrafast",
         audio_codec="aac",
         threads=8,
     )
@@ -822,20 +784,8 @@ if __name__ == "__main__":
             frame_neon_edge_bleed_luma_cut=0.35, #0.35   # höher = mehr Pixel gelten als „zu dunkel“
         )
 
-        # Run immediately (vertical Shorts / Reels preview)
-    try: 
-        v = VideoFileClip(input_file) #type:ignore
-        dur = float(v.duration)
-        v.close()
-        if not (dur > 0.0):
-            dur = 2.0
-    except Exception:
-        dur = 2.0
-
-    render_reel_preview(
+    add_frame_to_video(
+        input_video_path=input_file,
         output_video_path=output_file,
         cfg=cfg,
-        duration=dur,
-        fps=20,
-        size=(720, 1280),
     )

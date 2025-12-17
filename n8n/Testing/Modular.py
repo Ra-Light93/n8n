@@ -278,12 +278,12 @@ if __name__ == "__main__":
 	# •	Red: #FF0000
 	# •	Cyan: #00FFFF
 
-python ./n8n/Testing/Modular.py \
-  --input  "n8n/Downloads/Sakinah Labs/He Proved His Coach Wrong🥶(@occrush_fritchle).mp4" \
-  --srt "transcripts/audio_for_transcription.srt" \
-  --output "n8n/Testing/videoOuput/CliTest.mp4" \
-  --y 520 \
-  --size 78 \
-  --color "#FFFFFF" \
-  --border-size 12 \
-  --border-color "#000000"
+# python ./n8n/Testing/Modular.py \
+#   --input  "n8n/Downloads/Sakinah Labs/He Proved His Coach Wrong🥶(@occrush_fritchle).mp4" \
+#   --srt "transcripts/audio_for_transcription.srt" \
+#   --output "n8n/Testing/videoOuput/CliTest.mp4" \
+#   --y 520 \
+#   --size 78 \
+#   --color "#FFFFFF" \
+#   --border-size 12 \
+#   --border-color "#000000"
