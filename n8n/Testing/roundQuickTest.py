@@ -759,11 +759,11 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 if __name__ == "__main__":
    # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/Neron/colorX.mp4"
+    output_file = "n8n/Testing/videoOuput/last/colorX2.mp4"
 
     cfg = Configuration(
             frame_enabled=True,
-            frame_thickness=20,
+            frame_thickness=16,
             frame_opacity=255,
             frame_mode="moving_palette",
             frame_colors_rgb=[(148, 0, 211),(10, 200, 100)],
@@ -782,26 +782,26 @@ if __name__ == "__main__":
             frame_blur_opacity_mult=0.9,            # Multipliziert Sichtbarkeit nach Blur; niedriger = weniger sichtbar
             frame_blur_alpha_gamma=0.85,            # Alpha-Gamma; <1 = weicher, >1 = härter
             frame_moving_mist_enabled=True,         # Aktiviert bewegten Nebel-Effekt
-            frame_moving_mist_blur_radius=14,       # Blur für Nebel; höher = mehr Ausbreitung
+            frame_moving_mist_blur_radius=6,        # Blur für Nebel; höher = mehr Ausbreitung
             frame_moving_mist_alpha_mult=0.3,       # Sichtbarkeit des Nebels; höher = stärker sichtbar
-            frame_moving_mist_threshold=0.06,       # Schwelle; höher = Nebel nur bei starken Übergängen
-            frame_moving_mist_edge_exclude_px=4,    # blendet statische Frame-Kanten aus (höher = weniger Rand-Nebel)
+            frame_moving_mist_threshold=0.10,       # Schwelle; höher = Nebel nur bei starken Übergängen
+            frame_moving_mist_edge_exclude_px=1,    # blendet statische Frame-Kanten aus (höher = weniger Rand-Nebel)
             frame_moving_mist_expand_alpha=True,    # Nebel darf Alpha nach innen/außen erweitern
 
             frame_neon_enabled=True,                # Neon/Glow aktivieren
-            frame_neon_glow_radius=17,              # größer = weiterer Glow
-            frame_neon_glow_intensity=1.4,          # stärker = heller
-            frame_neon_saturation_mult=1.25,        #1.25,    # sattere Farben
+            frame_neon_glow_radius=6,               # größer = weiterer Glow
+            frame_neon_glow_intensity=1.25,         # stärker = heller
+            frame_neon_saturation_mult=1.05,        #1.1,    # sattere Farben
             frame_neon_brightness_add=0,            # + macht heller
             frame_neon_tint_rgb=None,               # None = Frame-Farben nutzen; z.B. (0,255,255) für Cyan-Neon
             frame_neon_alpha_mult=1.1,   #1.0       # Glow-Alpha verstärken/abschwaechen
             frame_neon_glow_luma_threshold=0.0,     # 0.12,  höher = weniger Glow aus dunklen Bereichen (weniger schwarzer Rand)
             frame_neon_glow_luma_softness= 0.0,     # 0.10 weicher Übergang der Maske
-            frame_neon_base_recolor_enabled=True,   # Basis einfärben -> reduziert schwarzen Rand stark
+            frame_neon_base_recolor_enabled=False,   # Basis einfärben -> reduziert schwarzen Rand stark
             frame_neon_base_tint_strength=0.35,     # Stärke der Basis-Einfärbung
             frame_neon_base_dark_lift=12,           # hebt dunkle Kanten leicht an
-            frame_neon_edge_bleed_enabled=True,     # entfernt dunklen Rand (bleed lokale Farbe in die Kante)
-            frame_neon_edge_bleed_blur=6,           # kleiner Blur = Farbe bleibt “original”
+            frame_neon_edge_bleed_enabled=False,    # entfernt dunklen Rand (bleed lokale Farbe in die Kante)
+            frame_neon_edge_bleed_blur=2,           # kleiner Blur = Farbe bleibt “original”
             frame_neon_edge_bleed_strength=0.55,  #0.55  # höher = weniger dunkle Kante
             frame_neon_edge_bleed_luma_cut=0.35, #0.35   # höher = mehr Pixel gelten als „zu dunkel“
         )
