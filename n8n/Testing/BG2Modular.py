@@ -828,7 +828,7 @@ def cover_old_text(
         raise FileNotFoundError(input_video_path)
 
     video = VideoFileClip(input_video_path)
-
+    video.resized(new_size=(720,1280))
     print("Creating shadowed rectangle cover with rounded corners...")
     cover = create_shadowed_cover_clip(video.w, video.h, cfg)
 
@@ -850,8 +850,8 @@ def cover_old_text(
     final.write_videofile(
         output_video_path,
         codec="libx264",
-        fps=video.fps,
-        preset="medium",
+        fps=20,
+        preset="ultrafast",
         audio_codec="aac",
         threads=8,
     )
@@ -948,8 +948,8 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 
 if __name__ == "__main__":
-    input_file ="n8n/Testing/videoOuput/last anpassung ArrayFarbe.mp4" #"n8n/Downloads/Sakinah Labs/last anpassung ArrayFarbe.mp4"
-    output_file = "n8n/Testing/videoOuput/last anpassung ArrayFarbe.mp4"
+    input_file ="n8n/Downloads/Sakinah Labs/He Proved His Coach Wrong🥶(@occrush_fritchle).mp4" #"n8n/Downloads/Sakinah Labs/last anpassung ArrayFarbe.mp4"
+    output_file = "n8n/Testing/videoOuput/last/last.mp4"
 
     cfg = Configuration(
         cover_y=1265,                        # Y-Position des Covers | höher = weiter unten, niedriger = weiter oben
@@ -961,18 +961,18 @@ if __name__ == "__main__":
         anchor_x_ratio=0.5,                  # Horizontale Position (0=links, 1=rechts) | 0.5 = genau mittig
 
         cover_color=(0, 0, 0),               # Grundfarbe des Covers (RGB)
-        cover_opacity=280,                   # Deckkraft (0=transparent, 255=voll) | höher = undurchsichtiger, niedriger = transparenter
+        cover_opacity=255,                   # Deckkraft (0=transparent, 255=voll) | höher = undurchsichtiger, niedriger = transparenter
 
-        cover_color_anim_enabled=True,       # Farb-Animation aktivieren | True = animiert, False = statisch
-        cover_color_from=(0, 120, 255),      # Startfarbe für Animation (RGB)
-        cover_color_to=(0, 255, 160),        # Endfarbe für Animation (RGB)
+        cover_color_anim_enabled=False,       # Farb-Animation aktivieren | True = animiert, False = statisch
+        cover_color_from=BEST_DARK_COLOR_COMBINATIONS[3][0],      # Startfarbe für Animation (RGB)
+        cover_color_to=BEST_DARK_COLOR_COMBINATIONS[3][1],        # Endfarbe für Animation (RGB)
         cover_color_anim_duration=3.5,       # Dauer für Farbwechsel (Sekunden) | höher = langsamer, niedriger = schneller
         cover_color_anim_pingpong=True,      # Animation hin und zurück | True = A->B->A, False = nur A->B
 
         cover_gradient_enabled=True,         # Farbverlauf aktivieren | True = Gradient, False = einfarbig
-        cover_gradient_left=(0, 120, 255),   # Gradientfarbe links (RGB)
-        cover_gradient_right=(0, 255, 160),  # Gradientfarbe rechts (RGB)
-        cover_gradient_colors_enabled=True,  # Multi-Stop Gradient aktivieren | True = mehrere Farben
+        cover_gradient_left=BEST_DARK_COLOR_COMBINATIONS[3][0],   # Gradientfarbe links (RGB)
+        cover_gradient_right=BEST_DARK_COLOR_COMBINATIONS[3][1],  # Gradientfarbe rechts (RGB)
+        cover_gradient_colors_enabled=False,  # Multi-Stop Gradient aktivieren | True = mehrere Farben
         cover_gradient_colors = BEST_DARK_COLOR_COMBINATIONS[3], # type:ignore
 
         cover_animation_type="mist",         # Animationsstil | "adi_battery", "fire", "electric", "mist"

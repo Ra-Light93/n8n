@@ -774,8 +774,8 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 
 if __name__ == "__main__":
-   # input_file = "n8n/Downloads/Sakinah Labs/TestVideo.mp4"
-    output_file = "n8n/Testing/videoOuput/last/colorX2.mp4"
+    input_file = "n8n/Testing/videoOuput/last/last.mp4"
+    output_file = "n8n/Testing/videoOuput/last/lastV1.mp4"
 
     cfg = Configuration(
             frame_enabled=True,
@@ -836,6 +836,6 @@ if __name__ == "__main__":
         output_video_path=output_file,
         cfg=cfg,
         duration=dur,
-        fps=15,
+        fps=20,
         size=(720, 1280),
     )
