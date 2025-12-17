@@ -949,11 +949,11 @@ BEST_DARK_COLOR_COMBINATIONS = [
 
 if __name__ == "__main__":
     input_file ="n8n/Downloads/Sakinah Labs/He Proved His Coach Wrong🥶(@occrush_fritchle).mp4" #"n8n/Downloads/Sakinah Labs/last anpassung ArrayFarbe.mp4"
-    output_file = "n8n/Testing/videoOuput/last/last.mp4"
+    output_file = "n8n/Testing/videoOuput/last/last2.mp4"
 
     cfg = Configuration(
         cover_y=1265,                        # Y-Position des Covers | höher = weiter unten, niedriger = weiter oben
-        cover_w=700,                         # Breite des Covers | höher = breiter, niedriger = schmaler
+        cover_w=830,                         # Breite des Covers | höher = breiter, niedriger = schmaler
         cover_h=140,                         # Höhe des Covers | höher = höher, niedriger = flacher
         corner_radius=20,                    # Radius der abgerundeten Ecken | höher = rundere Ecken, niedriger = eckiger
         cover_aa=2,                          # Anti-Aliasing Qualität | höher = glattere Kanten, niedriger = gröbere Kanten
