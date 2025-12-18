@@ -61,3 +61,7 @@ if __name__ == "__main__":
 #   --format mp3 \
 #   --quality 192
 
+# ./n8n/Testing/audioExtract.py "n8n/Downloads/Sakinah Labs/here.mp4" \
+#   --output n8n/Testing/videoOuput/PROB/ \
+#   --format mp3 \
+#   --quality 192
