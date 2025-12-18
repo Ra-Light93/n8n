@@ -19,6 +19,12 @@ def main():
         help="Input language: auto | de | en | fr | ..."
     )
     parser.add_argument("--model", default="medium", help="tiny | base | small | medium | large")
+    parser.add_argument(
+        "--words-per-line",
+        type=int,
+        default=1,
+        help="Number of words per subtitle line"
+    )
     args = parser.parse_args()
 
     in_path = Path(args.input)
@@ -47,19 +53,29 @@ def main():
     last_pct = -1
 
     with open(out_srt, "w", encoding="utf-8") as f:
+        wpl = max(1, args.words_per_line)
+
         for seg in segments:
             words = getattr(seg, "words", None) or []
-            for w in words:  # type: ignore
+            i = 0
+            while i < len(words):
+                chunk = words[i:i + wpl]
+                start = chunk[0].start
+                end = chunk[-1].end
+                text = " ".join(w.word.strip() for w in chunk)
+
                 f.write(f"{idx}\n")
-                f.write(f"{format_ts(w.start)} --> {format_ts(w.end)}\n")
-                f.write(f"{w.word.strip()}\n\n")
+                f.write(f"{format_ts(start)} --> {format_ts(end)}\n")
+                f.write(f"{text}\n\n")
                 idx += 1
 
-                done_words += 1
+                done_words += len(chunk)
                 pct = int(done_words * 100 / total_words)
                 if pct != last_pct:
                     print(f"\rProgress: {pct:3d}% ({done_words}/{total_words} words)", end="", flush=True)
                     last_pct = pct
+
+                i += wpl
 
     print("\nDone.", flush=True)
 
@@ -71,5 +87,6 @@ if __name__ == "__main__":
 # python n8n/Testing/makeSrt.py n8n/Testing/videoOuput/last/lastV1.mp3 \
 #   --output n8n/Testing/videoOuput/last/ \
 #   --sp en \
-#   --model small
+#   --model small \
+#   --words-per-line 2
 

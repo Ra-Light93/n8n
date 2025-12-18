@@ -6,6 +6,11 @@ def main():
     parser = argparse.ArgumentParser(description="Convert SRT subtitles to ALL CAPS")
     parser.add_argument("input", help="Input .srt file")
     parser.add_argument("output", help="Output .srt file")
+    parser.add_argument(
+        "--remove-extra",
+        action="store_true",
+        help="Remove ',' and '.' from subtitle text lines"
+    )
     args = parser.parse_args()
 
     inp = Path(args.input)
@@ -16,11 +21,13 @@ def main():
             if "-->" in line or line.strip().isdigit():
                 o.write(line)
             else:
-                o.write(line.upper())
+                text = line
+                if args.remove_extra:
+                    text = text.replace(",", "").replace(".", "")
+                o.write(text.upper())
 
 if __name__ == "__main__":
     main()
 
 # python srt_to_caps.py input.srt output_caps.srt
-# python ./n8n/Testing/makeUpperSrt.py ./n8n/Testing/videoOuput/last/lastV1.srt ./n8n/Testing/videoOuput/last/lastV1Upper.srt
-
+# python ./n8n/Testing/makeUpperSrt.py ./n8n/Testing/videoOuput/last/lastV1.srt ./n8n/Testing/videoOuput/last/lastV1Upper.srt --remove-extra
